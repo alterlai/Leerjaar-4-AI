@@ -4,10 +4,8 @@ geit + kool = x
 Representatie van het probleem:
 """
 
-visited = []
 
-
-def dfs(state, visited, path=[]):
+def dfs(state, path=[]):
     path = path + [state]
 
     # Als dit een oplssing is, voeg hem toe aan de solutions
@@ -16,11 +14,10 @@ def dfs(state, visited, path=[]):
 
     paths = []
 
-    visited += [state]
     if get_available_moves(state) is not None:
         for child in get_available_moves(state):
             if child not in path:
-                newpaths = dfs(child, visited, path)
+                newpaths = dfs(child, path)
                 if newpaths is not None:
                     for newpath in newpaths:
                         paths.append(newpath)
@@ -73,7 +70,7 @@ def get_left_right(state):
 begin_state = ('WKGB|')
 # dfs(begin_state, visited, solutions)
 
-solutions = dfs(begin_state, visited)
+solutions = dfs(begin_state)
 for solution in solutions:
     print("Solution: ", solution)
 
