@@ -2,26 +2,23 @@
 wolf + geit = x
 geit + kool = x
 Representatie van het probleem:
-	[
-		[]
-	] 
 """
 
 solutions = []
-visited = list()
+visited = set()
 
 def dfs(state, visited):
 
 	# Als dit een oplssing is, voeg hem toe aan de solutions
 	if is_goal(state):
-		solutions += [state]
+		solutions += (state)
 
 	visited.add(state)
 	for child in get_available_moves(state):
 		if child not in visited:
-			if dfs(state, visited) is not None:
-				return state + [state]
-	return None
+			if dfs(state, visited):
+				return (child, state)
+	return False
 
 def get_available_moves(state):
 	available_moves = []
@@ -63,11 +60,6 @@ def is_goal(state):
 
 
 begin_state = (['B','W','G','K'],[])
-# get_available_moves(begin_state)
+dfs(begin_state, visited)
 
 # dfs(begin_state, visited)
-
-
-#todo:
-#- Find available moves
-#- Check if valid state
