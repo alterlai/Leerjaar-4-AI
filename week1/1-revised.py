@@ -4,25 +4,27 @@ geit + kool = x
 Representatie van het probleem:
 """
 
-solutions = []
 visited = []
 
 
-def dfs(state, visited, solutions):
+def dfs(state, visited, path=[]):
+    path = path + [state]
+
     # Als dit een oplssing is, voeg hem toe aan de solutions
     if is_goal(state):
-        return True
+        return [path]
 
+    paths = []
 
-    visited += [state,]
+    visited += [state]
     if get_available_moves(state) is not None:
         for child in get_available_moves(state):
-            if child not in visited:
-                if dfs(child, visited, solutions):
-                    solutions += [child,]
-                    return [state, child]
-
-        return False # Als er geen valid move meer is return false
+            if child not in path:
+                newpaths = dfs(child, visited, path)
+                if newpaths is not None:
+                    for newpath in newpaths:
+                        paths.append(newpath)
+        return paths
 
 
 def get_available_moves(state):
@@ -41,18 +43,17 @@ def get_available_moves(state):
             left = left.replace('B', '')
             right += 'B'
 
-        possible_states += [left + "|" + right,]
+        if check_validity(state):
+            possible_states += [left + "|" + right,]
     if len(possible_states) == 0: return None
     return possible_states
 
 # Check of de state voldoet aan de gestelde regels.
 def check_validity(state):
     left, right = get_left_right(state)
-    if 'W' in left and 'G' in left or 'W' in right and 'G' in right:
-        print(state, "Invalid")
+    if set(left) == {'G', 'W'} or set(right) == {'G', 'W'}:
         return False
-    if 'G' in left and 'K' in left or 'W' in right and 'G' in right:
-        print(state, "valid")
+    if set(left) == {'K', 'G'} or set(right) == {'K', 'G'}:
         return False
     return True
 
@@ -72,5 +73,7 @@ def get_left_right(state):
 begin_state = ('WKGB|')
 # dfs(begin_state, visited, solutions)
 
-dfs(begin_state, visited, solutions)
-print(solutions)
+solutions = dfs(begin_state, visited)
+for solution in solutions:
+    print("Solution: ", solution)
+
