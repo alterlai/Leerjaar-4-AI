@@ -92,7 +92,6 @@ def find_words(node, word_nodes=[]):
     word_nodes = word_nodes + [node]
 
     if word_from_nodes(word_nodes) in valid_words:
-        print("Valid word found: " + word_from_nodes(word_nodes))
         return [word_nodes]
 
     nodes = []
@@ -101,15 +100,20 @@ def find_words(node, word_nodes=[]):
 
         # If a node hasnt been crossed yet AND the adjacent node still allows for a solution move forward.
         # If false, then ignore that adjacent node
+        print("Check from node " + str(node[0]) + ": " + node[1])
+        print("Checking node " + str(adjacent_node[0]) + ": " + adjacent_node[1])
         if adjacent_node not in word_nodes and partial_solution(word_from_nodes(word_nodes) + adjacent_node[1]):
+            print("Valid next node!")
             possible_directions = find_words(adjacent_node, word_nodes)
             for next_node in possible_directions:
                 nodes.append(next_node)
+        print("Moving back from node " + str(node[0]) + ": " + node[1])
 
-    print("Next depth: " + str(nodes))
     return nodes
 
 
 woordenlijst_maken(valid_words)
 letters = custom_bord
-print(find_words((0, "A")))
+
+solutions = find_words((0, "A"))
+print(solutions)
