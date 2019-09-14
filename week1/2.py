@@ -19,6 +19,16 @@ def random_letter():
     return random.choice(string.ascii_uppercase)
 
 
+def print_board(board: dict):
+    board_string = ''
+    for k, v in board.items():
+        if (k+1) % BORD_SIZE == 0:
+            board_string = board_string + v + '\n'
+        else:
+            board_string = board_string + v + ' '
+    print(board_string)
+
+
 def generate_bord(n: int):
     bord = dict()
     for x in range(0, n * n):
@@ -26,12 +36,12 @@ def generate_bord(n: int):
     return bord
 
 
-def woordenlijst_maken(valide_woorden):
+def create_valid_word_list():
     f = open("words.txt", "r")
     lines = f.readlines()
     for line in lines:
         line = line.upper()
-        valide_woorden.append(line.replace('\n', ''))
+        valid_words.append(line.replace('\n', ''))
 
 
 def get_adjacent_nodes(node):
@@ -90,8 +100,15 @@ def word_from_nodes(nodes):
 
 def find_words(node, word_nodes=[]):
     word_nodes = word_nodes + [node]
+    current_word = word_from_nodes(word_nodes)
 
-    if word_from_nodes(word_nodes) in valid_words:
+    if current_word in valid_words:
+        # If a valid word is found, add to solutions
+        print("Valid word found: " + current_word)
+        solutions.append(current_word)
+
+    if not partial_solution(current_word):
+        # If no more solutions available at this point, move 1 node back
         return [word_nodes]
 
     nodes = []
@@ -102,18 +119,33 @@ def find_words(node, word_nodes=[]):
         # If false, then ignore that adjacent node
         print("Check from node " + str(node[0]) + ": " + node[1])
         print("Checking node " + str(adjacent_node[0]) + ": " + adjacent_node[1])
-        if adjacent_node not in word_nodes and partial_solution(word_from_nodes(word_nodes) + adjacent_node[1]):
+        if adjacent_node not in word_nodes:
             print("Valid next node!")
             possible_directions = find_words(adjacent_node, word_nodes)
             for next_node in possible_directions:
                 nodes.append(next_node)
-        print("Moving back from node " + str(node[0]) + ": " + node[1])
+        print("Node " + str(adjacent_node[0]) + ": " + adjacent_node[1] + " yields no solutions or is already crossed")
+    print("Moving back from node " + str(node[0]) + ": " + node[1])
 
     return nodes
 
 
-woordenlijst_maken(valid_words)
-letters = custom_bord
+create_valid_word_list()
 
-solutions = find_words((0, "A"))
+letters = custom_bord
+""""
+custom_bord layout
+A C X V W
+A O K J L
+N B Y I G
+Z E L L X
+K U W E N
+"""
+
+# letters = generate_bord(5)
+# Use print_board to show board in terminal
+print_board(letters)
+
+for k, v in letters.items():
+    find_words((k, v))
 print(solutions)
