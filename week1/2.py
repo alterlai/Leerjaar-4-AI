@@ -127,6 +127,7 @@ K U W E N
 
 # Enable either of below to generate a board
 # custom_board uses the above layout
+# if custom_board is used, make sure to set BOARD_SIZE to 5
 
 board = custom_board
 # board = generate_board(5)
