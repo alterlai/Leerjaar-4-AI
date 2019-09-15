@@ -1,18 +1,17 @@
 import string
 import random
-
 # Boggle
 # Kies start positie -> haal lijst op van alle woorden die beginnen met die letter -> maak tree op basis van die letters
 # bepaal lengte van langste woord, zodat je stopt met zoeken
 # Doe DFS op tree
 
 BORD_SIZE = 5
-valid_words = []
-solutions = []
-visited = []
-custom_bord = {0: 'A', 1: 'C', 2: 'X', 3: 'V', 4: 'W', 5: 'A', 6: 'O', 7: 'K', 8: 'J', 9: 'L', 10: 'N', 11: 'B',
-               12: 'Y', 13: 'I', 14: 'G', 15: 'Z', 16: 'E', 17: 'L', 18: 'L', 19: 'X', 20: 'K', 21: 'U', 22: 'W',
-               23: 'E', 24: 'N'}
+valid_words = list()
+solutions = list()
+visited = list()
+custom_board = {0: 'A', 1: 'C', 2: 'X', 3: 'V', 4: 'W', 5: 'A', 6: 'O', 7: 'K', 8: 'J', 9: 'L', 10: 'N', 11: 'B',
+                12: 'Y', 13: 'I', 14: 'G', 15: 'Z', 16: 'E', 17: 'L', 18: 'L', 19: 'X', 20: 'K', 21: 'U', 22: 'W',
+                23: 'E', 24: 'N'}
 
 
 def random_letter():
@@ -29,7 +28,7 @@ def print_board(board: dict):
     print(board_string)
 
 
-def generate_bord(n: int):
+def generate_board(n: int):
     bord = dict()
     for x in range(0, n * n):
         bord.update({x: random_letter()})
@@ -47,7 +46,7 @@ def create_valid_word_list():
 def get_adjacent_nodes(node):
     adjacent_nodes = []
 
-    for k, v in letters.items():
+    for k, v in board.items():
         # Check above
         if k == node[0] - 5:
             adjacent_nodes.append((k, v))
@@ -74,23 +73,6 @@ def partial_solution(word):
             return True
 
 
-# Iterate through dictionary that is the board, for each starting letter get the list of available words
-def dfs(node, word):
-    if word in valid_words:
-        solutions.append(word)
-        return True
-
-    word = word + node[1]
-    visited.append(node)
-
-    for adjacent_node in get_adjacent_nodes(node):
-        if adjacent_node not in visited and partial_solution(word + adjacent_node[1]):
-            if dfs(adjacent_node, word):
-                return True
-
-    return False
-
-
 def word_from_nodes(nodes):
     str = ''
     for node in nodes:
@@ -98,7 +80,7 @@ def word_from_nodes(nodes):
     return str
 
 
-def find_words(node, word_nodes=[]):
+def find_words(node, word_nodes=list()):
     word_nodes = word_nodes + [node]
     current_word = word_from_nodes(word_nodes)
 
@@ -132,9 +114,8 @@ def find_words(node, word_nodes=[]):
 
 create_valid_word_list()
 
-letters = custom_bord
 """"
-custom_bord layout
+custom_board layout
 A C X V W
 A O K J L
 N B Y I G
@@ -142,10 +123,15 @@ Z E L L X
 K U W E N
 """
 
-# letters = generate_bord(5)
-# Use print_board to show board in terminal
-print_board(letters)
+# Enable either of below to generate a board
+# custom_board uses the above layout
 
-for k, v in letters.items():
+board = custom_board
+# board = generate_board(5)
+
+# Use print_board to show board in terminal
+print_board(board)
+
+for k, v in board.items():
     find_words((k, v))
 print(solutions)
