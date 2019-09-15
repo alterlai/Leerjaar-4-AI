@@ -1,5 +1,6 @@
 import string
 import random
+
 # Boggle
 # Kies start positie -> haal lijst op van alle woorden die beginnen met die letter -> maak tree op basis van die letters
 # bepaal lengte van langste woord, zodat je stopt met zoeken
@@ -21,7 +22,7 @@ def random_letter():
 def print_board(board: dict):
     board_string = ''
     for k, v in board.items():
-        if (k+1) % BORD_SIZE == 0:
+        if (k + 1) % BORD_SIZE == 0:
             board_string = board_string + v + '\n'
         else:
             board_string = board_string + v + ' '
@@ -90,7 +91,8 @@ def find_words(node, word_nodes=list()):
         solutions.append(current_word)
 
     if not partial_solution(current_word):
-        # If no more solutions available at this point, move 1 node back
+        # If no more solutions available at this point
+        # move 1 node back by returning currently list of nodes (which is a valid word)
         return [word_nodes]
 
     nodes = []
