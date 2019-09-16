@@ -60,6 +60,7 @@ def ucs(start, goal, app, ):
     while not queue.empty():
         position = queue.get()
         current_node = position[0]
+        steps_to_current_node = position[1]
         visited.append(current_node)
 
         if current_node == goal:
@@ -67,8 +68,8 @@ def ucs(start, goal, app, ):
 
         for adjacent_node in get_adjacent_nodes(current_node, visited):
             if adjacent_node not in visited:
-                queue.put((adjacent_node, position[1] + 1),
-                          position[1] + 1)  # All vertices are 1 step, so +1 is sufficient
+                queue.put((adjacent_node, steps_to_current_node + 1),
+                          steps_to_current_node + 1)  # All vertices are 1 step, so +1 is sufficient
                 visited.append(adjacent_node)
                 app.plot_line_segment(current_node[0], current_node[1], adjacent_node[0], adjacent_node[1],
                                       color=cf.FINAL_C)
@@ -84,6 +85,7 @@ def astar(start, goal, app):
     while not queue.empty():
         position = queue.get()
         current_node = position[0]
+        steps_to_current_node = position[1]
         visited.append(current_node)
 
         if current_node == goal:
@@ -92,7 +94,7 @@ def astar(start, goal, app):
         for adjacent_node in get_adjacent_nodes(current_node, visited):
             if adjacent_node not in visited:
                 # All vertices are 1 step, so +1 is sufficient. Heuristic is 50 (SIZE*2) minus x and y coordinates
-                queue.put((adjacent_node, position[1] + 1),
+                queue.put((adjacent_node, steps_to_current_node + 1),
                           cf.SIZE * 2 - adjacent_node[0] - adjacent_node[1])
                 visited.append(adjacent_node)
                 app.plot_line_segment(current_node[0], current_node[1], adjacent_node[0], adjacent_node[1],
