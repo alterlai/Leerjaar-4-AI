@@ -34,14 +34,29 @@ def get_grid_value(node):
     # node is a tuple (x, y), grid is a 2D list [x][y]
     return grid[node[0]][node[1]]
 
+# Return alle aanliggende nodes die binnen het bord vallen.
+def get_adjacent_nodes(node):
+    x, y = node
+    adjacents = []
+    if x+1 < cf.SIZE:
+        adjacents.append((x+1, y))
+    if y+1 < cf.SIZE:
+        adjacents.append((x, y+1))
+    if x-1 >= 0:
+        adjacents.append((x-1, y))
+    if y-1 >= 0:
+        adjacents.append((x, y-1))
+    return adjacents
+
 def UCS(app, start, goal):
     # plot a sample path for demonstration
-    curr_pos = start
+    queue = PriorityQueue()
+    for neighbor in get_adjacent_nodes(start):
+        queue.put(neighbor, get_grid_value(neighbor))
 
-    for i in range(cf.SIZE-1):
         app.plot_line_segment(i, i, i, i+1, color=cf.FINAL_C)
+
         print("i:", i)
-        print(grid[i][i])
         if grid[i][i+1] == 'b':
             app.plot_node((i, i), 'blue')
         app.plot_line_segment(i, i+1, i+1, i+1, color=cf.FINAL_C)
