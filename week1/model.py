@@ -61,24 +61,25 @@ def UCS(app, start, goal):
     queue = PriorityQueue()
     visited = []
     queue.put(start, 1)     # zet de start node in de queue
-    weight = 0
-    path = [start,]
     while(len(queue.elements) > 0):     # zolang er nog items in de queue zitten:
         current_node = queue.get()      # get the top node from the queue
+        if current_node[1] in visited:
+            continue
         visited.append(current_node[1])
         # finish requirement
         if current_node[1] == cf.GOAL:
             print("path found!")
-            return
+            break
 
         print("current node:", current_node)
         for neighbor in get_adjacent_nodes(current_node[1], visited):       # vindt de aanliggende nodes
             print("neighbours:", neighbor)
-            queue.put(neighbor, current_node[0] - 1)                # Zet de neighbor in de queue met een priority van -1 (?)
-
+            queue.put(neighbor, current_node[0] + 1)                # Zet de neighbor in de queue met een priority van -1 (?)
+            app.plot_line_segment(current_node[1][0], current_node[1][1], neighbor[0], neighbor[1], 'red')
+        app.pause()
         # app.plot_line_segment(i, i, i, i+1, color=cf.FINAL_C)
         #app.plot_node((i, i), 'blue')
-        app.pause()
+        # app.pause()
 
 def A_star(app, start, goal):
     for i in range(cf.SIZE-1):
