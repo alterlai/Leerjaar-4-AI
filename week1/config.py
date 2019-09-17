@@ -12,7 +12,7 @@ GOAL_C  = 'yellow'
 # grid size
 START = (12, 12)
 SIZE  = 25 # the nr of nodes=grid crossings in a row (or column)
-GOAL  = (SIZE-1, SIZE-1)
+GOAL  = (0, 0)
 
 # pixel sizes
 CELL  = 35 # size of cell/square in pixels
