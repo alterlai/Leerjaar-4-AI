@@ -79,7 +79,10 @@ def plot_tsp(algorithm, cities):
     print("Start plotting ...")
     plot_tour(tour)
 
-cities = make_cities(10)
-plot_tsp(try_all_tours, cities)
+cities = make_cities(500)
+# plot_tsp(try_all_tours, cities)
 plot_tsp(NN, cities)
 
+# 1B)
+# Hoe langdoet hetNN-programmaover een route met 500 steden en wat is de totale lengte van de route?
+# 500 city tour with length 20485.6 in 0.058 secs for NN
