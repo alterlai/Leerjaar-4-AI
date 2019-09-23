@@ -17,6 +17,28 @@ def try_all_tours(cities):
     tours = alltours(cities)
     return min(tours, key=tour_length)
 
+def NN(cities):
+    # Nearest neighbor algoritme.
+
+    # Pick a random starting point
+    cities = set(cities)
+    current_city = cities.pop()
+
+    shortest_distance = math.inf     # hoge shortest distance.
+    path = [current_city, ]
+    closest_city = None
+    while len(cities) > 0:
+        for city in cities:
+            if distance(current_city, city) < shortest_distance:
+                shortest_distance = distance(current_city, city)
+                closest_city = city
+        cities.remove(closest_city)
+        path.append(closest_city)
+        current_city = closest_city
+        shortest_distance = math.inf        # reset shortest distance
+
+    return path
+
 def alltours(cities):
     # return a list of tours (a list of lists), each tour a permutation of cities,
     # and each one starting with the same city
@@ -56,5 +78,8 @@ def plot_tsp(algorithm, cities):
           .format(len(tour), tour_length(tour), t1 - t0, algorithm.__name__))
     print("Start plotting ...")
     plot_tour(tour)
-    
-plot_tsp(try_all_tours, make_cities(10))
+
+cities = make_cities(10)
+plot_tsp(try_all_tours, cities)
+plot_tsp(NN, cities)
+
