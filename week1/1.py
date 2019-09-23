@@ -131,5 +131,6 @@ begin_state = 'WKGB|'
 # dfs(begin_state, visited, solutions)
 
 solutions = dfs(begin_state)
+print("\n++++++++++++SOLUTIONS++++++++++++")
 for solution in solutions:
     print("Solution: ", solution)

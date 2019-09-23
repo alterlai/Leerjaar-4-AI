@@ -130,7 +130,7 @@ K U W E N
 # if custom_board is used, make sure to set BOARD_SIZE to 5
 
 board = custom_board
-# board = generate_board(5)
+# board = generate_board(BORD_SIZE)
 
 # Use print_board to show board in terminal
 print_board(board)
