@@ -1,3 +1,4 @@
+import random
 """
 
 Othello is a turn-based two-player strategy board game.
@@ -41,11 +42,13 @@ UP_RIGHT, DOWN_RIGHT, DOWN_LEFT, UP_LEFT = -9, 11, 9, -11
 # 8 directions; note UP_LEFT = -11, we can repeat this from row to row
 DIRECTIONS = (UP, UP_RIGHT, RIGHT, DOWN_RIGHT, DOWN, DOWN_LEFT, LEFT, UP_LEFT)
 
+
 def squares():
     # list all the valid squares on the board.
     # returns a list [11, 12, 13, 14, 15, 16, 17, 18, 21, ...]; e.g. 19,20,21 are invalid
     # 11 means first row, first col, because the board size is 10x10
     return [i for i in range(11, 89) if 1 <= (i % 10) <= 8]
+
 
 def initial_board():
     # create a new board with the initial black and white positions filled
@@ -58,6 +61,7 @@ def initial_board():
     board[54], board[55] = BLACK, WHITE
     return board
 
+
 def print_board(board):
     # get a string representation of the board
     # heading '  1 2 3 4 5 6 7 8\n'
@@ -65,9 +69,10 @@ def print_board(board):
     rep += '  %s\n' % ' '.join(map(str, range(1, 9)))
     # begin,end = 11,19 21,29 31,39 ..
     for row in range(1, 9):
-        begin, end = 10*row + 1, 10*row + 9
+        begin, end = 10 * row + 1, 10 * row + 9
         rep += '%d %s\n' % (row, ' '.join(board[begin:end]))
     return rep
+
 
 # -----------------------------------------------------------------------------
 # Playing the game
@@ -84,9 +89,11 @@ def is_valid(move):
     # move must be an int, and must refer to a real square
     return isinstance(move, int) and move in squares()
 
+
 def opponent(player):
     # get player's opponent piece
     return BLACK if player is WHITE else WHITE
+
 
 def find_bracket(square, player, board, direction):
     # find and return the square that forms a bracket with `square` for `player` in the given
@@ -101,6 +108,7 @@ def find_bracket(square, player, board, direction):
     # if last square board[bracket] not in (EMPTY, OUTER, opp) then it is player
     return None if board[bracket] in (OUTER, EMPTY) else bracket
 
+
 def is_legal(move, player, board):
     # is this a legal move for the player?
     # move must be an empty square and there has to be is an occupied line in some direction
@@ -108,9 +116,11 @@ def is_legal(move, player, board):
     hasbracket = lambda direction: find_bracket(move, player, board, direction)
     return board[move] == EMPTY and any(hasbracket(x) for x in DIRECTIONS)
 
+
 # Making moves
 # When the player makes a move, we need to update the board and flip all the
 # bracketed pieces.
+
 
 def make_move(move, player, board):
     # update the board to reflect the move by the specified player
@@ -120,6 +130,7 @@ def make_move(move, player, board):
     for d in DIRECTIONS:
         make_flips(move, player, board, d)
     return board
+
 
 def make_flips(move, player, board, direction):
     # flip pieces in the given direction as a result of the move by player
@@ -132,6 +143,7 @@ def make_flips(move, player, board, direction):
         board[square] = player
         square += direction
 
+
 # Monitoring players
 
 # define an exception
@@ -140,18 +152,21 @@ class IllegalMoveError(Exception):
         self.player = player
         self.move = move
         self.board = board
-    
+
     def __str__(self):
         return '%s cannot move to square %d' % (PLAYERS[self.player], self.move)
+
 
 def legal_moves(player, board):
     # get a list of all legal moves for player
     # legals means : move must be an empty square and there has to be is an occupied line in some direction
     return [sq for sq in squares() if is_legal(sq, player, board)]
 
+
 def any_legal_move(player, board):
     # can player make any moves?
     return any(is_legal(sq, player, board) for sq in squares())
+
 
 # Putting it all together
 
@@ -161,16 +176,61 @@ def any_legal_move(player, board):
 # - Switch players. If the game is over, get the final score.
 
 def play(black_strategy, white_strategy):
-    # play a game of Othello and return the final board and score
+    # play a game of Othello and return the final board and score\
+    # black_strategy and white strategy are functions that calculate the next move
+    board = initial_board()
+    current_player = WHITE
+
+    # While valid moves are still available, keep looping turns between players till game is finished
+    while any_legal_move(WHITE, board) or any_legal_move(BLACK, board):
+        print_board("Playing as " + current_player)
+        make_move(get_move("s", current_player, board), current_player, board)
+        current_player = next_player(board, current_player)
+
+    if score(WHITE, board) == 0:
+        print("It is a draw")
+    elif score(WHITE, board) > 0:
+        print("White has won with a score of: " + str(score(WHITE, board)))
+    else:
+        print("Black has won with a score of: " + str(score(BLACK, board)))
+
+    print(print_board(board))
+
 
 def next_player(board, prev_player):
-    # which player should move next?  Returns None if no legal moves exist
+    # Can the next player do a legal move? Return next player if True
+    if any_legal_move(opponent(prev_player), board):
+        return opponent(prev_player)
+
+    # If next player can't make a move, can the previous player? Return previous player if True
+    if any_legal_move(prev_player, board):
+        return prev_player
+
+    # Return None if neither player have valid moves left
+    return None
+
 
 def get_move(strategy, player, board):
     # call strategy(player, board) to get a move
+    # TODO: Make use of strategy
+
+    return legal_moves(player, board)[random.randint(1, 50) % len(legal_moves(player, board))]
+
 
 def score(player, board):
-    # compute player's score (number of player's pieces minus opponent's)
+    #      Get length of list of all cells that are occupied by player
+    #      and subtract length of list of cells that are occupied by opponent of player
+    return len([x for x in range(11, 89) if board[x] == player]) - \
+           len([x for x in range(11, 89) if board[x] == opponent(player)])
+
+
+def negamax(board, player):
+    # TODO: Make algorithm
+    pass
+
+
+play(None, None)
+
 
 # Play strategies
 
