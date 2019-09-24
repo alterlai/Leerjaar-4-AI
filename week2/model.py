@@ -2,6 +2,7 @@ import random
 import itertools
 import math
 import copy
+from numpy import flip
 
 MAX_DEPTH = 3
 
@@ -119,7 +120,7 @@ def add_two_four(b):
     rows, cols = list(range(4)), list(range(4))
     random.shuffle(rows)
     random.shuffle(cols)
-    distribution = [2] * 9 + [4]
+    distribution = [2] * 9 + [4] *10
     for i, j in itertools.product(rows, rows):
         if b[i][j] == 0:
             b[i][j] = random.sample(distribution, 1)[0]
@@ -162,18 +163,24 @@ def find_highest_value(b):
                 value = b[row][column]
     return value
 
-
+def find_highest_value_location(b, highest_value):
+    for row in range(0, len(b)):
+        for column in (range(0, len(b))):
+            if b[row][column] == highest_value:
+                return (row, column)  # Location of highest value, used in rule 3
 
 
 def value_board(b):
     # value a board state
     score = 0
     # score assignments voor elke rule
-    s_rule1 = 5
-    s_rule2 = 5
+    s_rule1 = 5     # Punten voor het hoogste getal in de hoek
+    s_rule2 = 5     # Gelijke getallen naast elkaar. Voor elk getal die naast elkaar ligt: bonus score
+    s_rule3 = 1
 
-    # Rule 1: In een hoek geeft +5 punten
+    # Rule 1: Hoogste getal in een hoek geeft punten.
     highest_value = find_highest_value(b)
+    highest_value_location = find_highest_value_location(b, highest_value)
     for row in range(0, len(b), 3):
         for column in (range(0, len(b), 3)):
             if b[row][column] == highest_value:
@@ -193,8 +200,20 @@ def value_board(b):
             except(IndexError):
                 pass
 
-    # Rule 3: 
+    # Rule 3: Lege cellen in de tegenovergestelde hoek van het hoogste getal.
+    # alle lege cellen rondom de gespiegelde x,y locatie van het hoogste getal verdient punten
+    b_m = flip(b).tolist()      # flip het bord horizontaal en verticaal.
+    # TODO: Raised nog steeds een out of bounds exception
+    if b_m[highest_value_location[0]-1][highest_value_location[1]] == 0:    # up
+        score+=s_rule3
+    if b_m[highest_value_location[0]+1][highest_value_location[1]] == 0:    # down
+        score+=s_rule3
+    if b_m[highest_value_location[0]][highest_value_location[1] -1] == 0:    # left
+        score+=s_rule3
+    if b_m[highest_value_location[0]][highest_value_location[1] +1] == 0:    # right
+        score+=s_rule3
 
+    # Rule 4:
 
     return score
 
