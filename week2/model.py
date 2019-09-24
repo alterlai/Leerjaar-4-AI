@@ -1,6 +1,7 @@
 import random
 import itertools
 import math
+import copy
 
 MAX_DEPTH = 3
 
@@ -151,8 +152,34 @@ def test():
     for i in range(11):
         g.add_two_four(b)
 
+def value_board(b):
+    # value a board state
+    
+
+def generate_next_board_states(b, depth=3):
+    # Generate possible board states given a certain depth.
+    # possibilities = dict['direction' => [(boardstate, chance, value), ...]]
+
+    possibilities = dict()
+
+    for direction in MERGE_FUNCTIONS.keys():            # Loop over elke mogelijke zet
+        possibilities[direction] = list()               # Creer een lijst voor alle mogelijke board states
+        state = MERGE_FUNCTIONS[direction](b)           # create board state
+        for row in range(0, len(state)):                # check each empty cell and assign either 2 or 4 as value
+            for column in (range(0, len(state))):
+                if state[row][column] == 0:
+                    temp2 = copy.deepcopy(state)        # deepcopy to avoid changing lists in lists.
+                    temp4 = copy.deepcopy(state)        # deepcopy to avoid changing lists in lists.
+                    temp2[row][column] = 2
+                    temp4[row][column] = 4
+                    possibilities[direction].append((temp2, 0.9, value_board(temp2)))   # add to list with it's possiblity and value
+                    possibilities[direction].append((temp4, 0.1, value_board(temp4)))
+    return possibilities
+
+
 def get_random_move():
     return random.choice(list(MERGE_FUNCTIONS.keys()))
 
 def get_expectimax_move(b):
-    pass
+    board_states = generate_next_board_states(b, depth=3)
+    return 'left'
