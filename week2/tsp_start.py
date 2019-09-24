@@ -37,6 +37,7 @@ def NN(cities):
         current_city = closest_city
         shortest_distance = math.inf        # reset shortest distance
 
+    # path = two_opt(path)                           # Perform 2-opt algorithm on path
     return path
 
 def alltours(cities):
@@ -79,6 +80,38 @@ def plot_tsp(algorithm, cities):
     print("Start plotting ...")
     plot_tour(tour)
 
+
+def two_opt_swap(path, i, k):
+    new_route = path[0:i:]
+    new_route += path[k:i:-1]
+    new_route += path[k::]
+    return new_route
+
+def two_opt(path):
+    print(path)
+    existing_path = path
+    stop = False
+
+    while(stop == False):
+        print("Best distance: ", tour_length(existing_path))
+        best_distance = tour_length(existing_path)
+
+        # Loop over alle paden
+        for i in range(0, len(existing_path) -1):
+            for k in range(i + 1, len(existing_path)):
+                new_path = two_opt_swap(existing_path, i, k)
+                new_distance = tour_length(new_path)
+                if new_distance < best_distance:
+                    best_distance = new_distance
+                    existing_path = new_path
+                    print("Best distance: ", tour_length(existing_path))
+                    print(len(existing_path))
+                    continue
+        stop = True
+    return existing_path
+
+
+
 cities = make_cities(500)
 # plot_tsp(try_all_tours, cities)
 plot_tsp(NN, cities)
@@ -86,3 +119,6 @@ plot_tsp(NN, cities)
 # 1B)
 # Hoe langdoet hetNN-programmaover een route met 500 steden en wat is de totale lengte van de route?
 # 500 city tour with length 20485.6 in 0.058 secs for NN
+
+# 1C)
+# Niet 1 vast aantal. Verschilt per gegenereerde plattegrond.
