@@ -152,9 +152,51 @@ def test():
     for i in range(11):
         g.add_two_four(b)
 
+
+def find_highest_value(b):
+    # return highest value of the board
+    value = 0
+    for row in range(0, len(b)):
+        for column in (range(0, len(b))):
+            if b[row][column] > value:
+                value = b[row][column]
+    return value
+
+
+
+
 def value_board(b):
     # value a board state
-    
+    score = 0
+    # score assignments voor elke rule
+    s_rule1 = 5
+    s_rule2 = 5
+
+    # Rule 1: In een hoek geeft +5 punten
+    highest_value = find_highest_value(b)
+    for row in range(0, len(b), 3):
+        for column in (range(0, len(b), 3)):
+            if b[row][column] == highest_value:
+                score += s_rule1
+                break
+        if score != 0:
+            break
+
+    # Rule 2: Gelijke getallen naast elkaar. Voor elk getal die naast elkaar ligt = +1 score
+    for row in range(0, len(b)):
+        for column in range(0, len(b)):
+            try:
+                if b[row][column] != 0 and b[row][column] == b[row][column+1]:  # getallen op de X as naast elkaar
+                    score += s_rule2
+                if b[row][column] != 0 and b[row][column] == b[row+1][column]:  # getallen op de Y as naast elkaar
+                    score += s_rule2
+            except(IndexError):
+                pass
+
+    # Rule 3: 
+
+
+    return score
 
 def generate_next_board_states(b, depth=3):
     # Generate possible board states given a certain depth.
