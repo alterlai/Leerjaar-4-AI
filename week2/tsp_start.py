@@ -4,6 +4,7 @@ import time
 import itertools
 import math
 from collections import namedtuple
+import copy
 
 # based on Peter Norvig's IPython Notebook on the TSP
 
@@ -37,7 +38,7 @@ def NN(cities):
         current_city = closest_city
         shortest_distance = math.inf        # reset shortest distance
 
-    path = two_opt_intersect(path)                           # Perform 2-opt algorithm on path
+    path = two_opt(path)                           # Perform 2-opt algorithm on path
     return path
 
 def alltours(cities):
@@ -93,9 +94,10 @@ def intersect(A,B,C,D):
     return ccw(A,C,D) != ccw(B,C,D) and ccw(A,B,C) != ccw(A,B,D)
 
 def two_opt_swap(path, i, k):
-    new_route = path[0:i:]
+    new_route = list()
+    new_route += path[0:i-1:]
     new_route += path[k:i:-1]
-    new_route += path[k::]
+    new_route += path[k+1::]
     return new_route
 
 def two_opt_intersect(path):
@@ -108,7 +110,7 @@ def two_opt_intersect(path):
         new_path = list()
         stop = True
         for i in range(0, len(best_path)):           # Loop over elke node
-            for j in range(i+1, len(best_path)):     # zoek vanaf de volgende node na i
+            for j in range(i+1, len(best_path)-1):     # zoek vanaf de volgende node na i
                 if intersect(best_path[i],best_path[i+1],best_path[j],best_path[j+1]):      # Pad i intersect met pad j
                     new_path.append(best_path[i])          # voeg de node toe aan de new_path
                     new_path.extend(best_path[j:i:-1])     # voeg de lijnen tussen de kruising in reverse order toe
@@ -117,39 +119,37 @@ def two_opt_intersect(path):
                     print("new path length: ", tour_length(new_path))
                     print("path nodes: ", len(path))
                     stop = False
-                    continue
-                else:   # pad intersect niet mer andere paden
-                    new_path.append(best_path[i])
                     break
+
+            new_path.append(best_path[i])
+
     return best_path
 
 
 def two_opt(path):
-    print(path)
-    existing_path = path
+    test_path = path
+    best_path = path
     stop = False
-
     while(stop == False):
-        print("Best distance: ", tour_length(existing_path))
-        best_distance = tour_length(existing_path)
-
-        # Loop over alle paden
-        for i in range(0, len(existing_path) -1):
-            for k in range(i + 1, len(existing_path)):
-                new_path = two_opt_swap(existing_path, i, k)
-                new_distance = tour_length(new_path)
-                if new_distance < best_distance:
-                    best_distance = new_distance
-                    existing_path = new_path
-                    print("Best distance: ", tour_length(existing_path))
-                    print(len(existing_path))
-                    continue
         stop = True
-    return existing_path
+        best_distance = tour_length(path)
+        for i in range(0, len(test_path) -1):      # i en i+1 = lijn A
+            for j in range(i +1, len(test_path)):  # j en j+1 = lijn om mee te wisselen.
+                test_path = two_opt_swap(test_path, i, j)
+                new_distance = tour_length(test_path)
+                print("best distance:", best_distance)
+                print("new distance: ", new_distance)
+                if new_distance < best_distance:
+                    print("New best path found. Distance: ", new_distance)
+                    print("route node count: ", len(test_path))
+                    best_path = test_path
+                    best_distance = new_distance
+                    stop = False
+    return best_path
 
 
 
-cities = make_cities(500)
+cities = make_cities(20)
 # plot_tsp(try_all_tours, cities)
 plot_tsp(NN, cities)
 
