@@ -1,4 +1,6 @@
 import random
+import math
+
 """
 
 Othello is a turn-based two-player strategy board game.
@@ -42,6 +44,8 @@ UP_RIGHT, DOWN_RIGHT, DOWN_LEFT, UP_LEFT = -9, 11, 9, -11
 # 8 directions; note UP_LEFT = -11, we can repeat this from row to row
 DIRECTIONS = (UP, UP_RIGHT, RIGHT, DOWN_RIGHT, DOWN, DOWN_LEFT, LEFT, UP_LEFT)
 
+DEPTH = 0
+
 
 def squares():
     # list all the valid squares on the board.
@@ -71,7 +75,7 @@ def print_board(board):
     for row in range(1, 9):
         begin, end = 10 * row + 1, 10 * row + 9
         rep += '%d %s\n' % (row, ' '.join(board[begin:end]))
-    return rep
+    print(rep)
 
 
 # -----------------------------------------------------------------------------
@@ -225,38 +229,45 @@ def score(player, board):
 
 
 def gameover(board):
-    return any_legal_move(WHITE, board) == False and any_legal_move(BLACK, board) == False
+    return any_legal_move(WHITE, board) is False and any_legal_move(BLACK, board) is False
 
 
-def negamax(board, player):
+def poging2(board, player):
     copy_of_board = board[:]
 
-    # Once a leafnode is hit, return the boardstate upwards so scores can be calculated
-    if gameover(copy_of_board):
-        return score(player, copy_of_board)
-
-    # Define best move on layer of recursion by getting the highest score
-    best_move = -5000000
-    highest_value = -500000
-
-    # Start loop for moves, this swaps between players for ever depth of recursion
     for move in legal_moves(player, copy_of_board):
         make_move(move, player, copy_of_board)
+        print_board(copy_of_board)
+        copy_of_board = board[:]
 
-        # Best score is vergelijken van huidige score, met move van de tegenstander
-        old_val = highest_value
-        highest_value = max(highest_value, -1 * negamax(copy_of_board, opponent(player)))
 
-        # If calculated value has changed -> memorize the move that was made
-        if old_val != highest_value:
+def negamax(board, player, depth):
+    copy_of_board = board[:]
+
+    if depth == 0 or gameover(copy_of_board):
+        return score(player, copy_of_board)
+
+    best_score, best_move = -500000, None
+
+    for move in legal_moves(player, copy_of_board):
+        make_move(move, player, copy_of_board)
+        old_score = best_score
+        best_score = max(best_score, -1 * negamax(copy_of_board, opponent(player), depth-1))
+
+        # If best_score is changed, hence not equal to old_score, update best_move
+        if old_score != best_score:
             best_move = move
 
-    return best_move
+        # Undo move, so others are checked properly
+        copy_of_board = board[:]
+
+    print("Returning recursion layer on board state: ")
+    print_board(copy_of_board)
+    return best_score, best_move
 
 
 # play(None, None)
 b = initial_board()
-print(negamax(b, WHITE))
+negamax(b, WHITE, 5)
 
 # Play strategies
-
