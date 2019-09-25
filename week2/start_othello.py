@@ -1,5 +1,4 @@
 import random
-import math
 
 """
 
@@ -179,7 +178,7 @@ def any_legal_move(player, board):
 # - Apply it to the board.
 # - Switch players. If the game is over, get the final score.
 
-def play(black_strategy, white_strategy):
+def play(black_strategy=None, white_strategy=None):
     # play a game of Othello and return the final board and score\
     # black_strategy and white strategy are functions that calculate the next move
     board = initial_board()
@@ -187,8 +186,15 @@ def play(black_strategy, white_strategy):
 
     # While valid moves are still available, keep looping turns between players till game is finished
     while not gameover(board):
-        print_board("Playing as " + current_player)
-        make_move(get_move("s", current_player, board), current_player, board)
+
+        print("Playing as " + current_player)
+        print_board(board)
+
+        if current_player is WHITE:
+            make_move(negamax(board, current_player)[1], current_player, board)
+        if current_player is BLACK:
+            make_move(negamax(board, current_player)[1], current_player, board)
+
         current_player = next_player(board, current_player)
 
     if score(WHITE, board) == 0:
@@ -214,13 +220,12 @@ def next_player(board, prev_player):
     return None
 
 
+# Unused helper function
 def get_move(strategy, player, board):
-    # call strategy(player, board) to get a move
-    # TODO: Make use of strategy
-
-    return legal_moves(player, board)[random.randint(1, 50) % len(legal_moves(player, board))]
+    return strategy(player, board)
 
 
+# Returns an integer that represents the score -> players stones - opponents stones
 def score(player, board):
     #      Get length of list of all cells that are occupied by player
     #      and subtract length of list of cells that are occupied by opponent of player
@@ -228,46 +233,50 @@ def score(player, board):
            len([x for x in range(11, 89) if board[x] == opponent(player)])
 
 
+# Returns True if either of the players has legal_moves left. Returns False if not
 def gameover(board):
     return any_legal_move(WHITE, board) is False and any_legal_move(BLACK, board) is False
 
 
-def poging2(board, player):
-    copy_of_board = board[:]
+"""
+:param board is the list of strings that refer to a tile value
+:param player is the player that negamax is executed from
+:param depth is an optional argument that increases depth that the algorithm will search
 
-    for move in legal_moves(player, copy_of_board):
-        make_move(move, player, copy_of_board)
-        print_board(copy_of_board)
-        copy_of_board = board[:]
+:returns a tuple containing the heuristic score of the boardstate and the move made to get to this state
+"""
 
 
-def negamax(board, player, depth):
+def negamax(board, player, depth=5):
     copy_of_board = board[:]
 
     if depth == 0 or gameover(copy_of_board):
-        return score(player, copy_of_board)
+        # depth 0 is the deepest layer we will go. We don't care about moves, so we just return the score as heuristic
+        return score(player, copy_of_board), None
 
     best_score, best_move = -500000, None
 
     for move in legal_moves(player, copy_of_board):
         make_move(move, player, copy_of_board)
+
+        # Memorize old best score to see if the value has changed later on
         old_score = best_score
-        best_score = max(best_score, -1 * negamax(copy_of_board, opponent(player), depth-1))
+        best_score = max(best_score, -1 * negamax(copy_of_board, opponent(player), depth-1)[0])
 
         # If best_score is changed, hence not equal to old_score, update best_move
         if old_score != best_score:
             best_move = move
 
-        # Undo move, so others are checked properly
+        # Undo last move, so others are checked properly
         copy_of_board = board[:]
 
-    print("Returning recursion layer on board state: ")
-    print_board(copy_of_board)
     return best_score, best_move
 
 
-# play(None, None)
-b = initial_board()
-negamax(b, WHITE, 5)
+def random_move(board, player):
+    return legal_moves(player, board)[random.randint(1, 50) % len(legal_moves(player, board))]
+
+
+play()
 
 # Play strategies
