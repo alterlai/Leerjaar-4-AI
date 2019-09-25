@@ -49,11 +49,11 @@ def get_adjacent_nodes(node):
 
     for k, v in board.items():
         # Check above
-        if k == node[0] - 5:
+        if k == node[0] - BORD_SIZE:
             adjacent_nodes.append((k, v))
 
         # Check below
-        if k == node[0] + 5:
+        if k == node[0] + BORD_SIZE:
             adjacent_nodes.append((k, v))
 
         # Check right, if on right outer row, skip
