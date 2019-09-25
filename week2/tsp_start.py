@@ -94,9 +94,8 @@ def intersect(A,B,C,D):
     return ccw(A,C,D) != ccw(B,C,D) and ccw(A,B,C) != ccw(A,B,D)
 
 def two_opt_swap(path, i, k):
-    new_route = list()
-    new_route += path[0:i-1:]
-    new_route += path[k:i:-1]
+    new_route = path[0:i:]
+    new_route += path[k:i-1:-1]
     new_route += path[k+1::]
     return new_route
 
@@ -109,7 +108,7 @@ def two_opt_intersect(path):
     while (stop == False):
         new_path = list()
         stop = True
-        for i in range(0, len(best_path)):           # Loop over elke node
+        for i in range(1, len(best_path)):           # Loop over elke node
             for j in range(i+1, len(best_path)-1):     # zoek vanaf de volgende node na i
                 if intersect(best_path[i],best_path[i+1],best_path[j],best_path[j+1]):      # Pad i intersect met pad j
                     new_path.append(best_path[i])          # voeg de node toe aan de new_path
@@ -127,29 +126,33 @@ def two_opt_intersect(path):
 
 
 def two_opt(path):
-    test_path = path
-    best_path = path
+    best_path = path[:]
     stop = False
+    best_distance = tour_length(path)
+
     while(stop == False):
-        stop = True
-        best_distance = tour_length(path)
-        for i in range(0, len(test_path) -1):      # i en i+1 = lijn A
-            for j in range(i +1, len(test_path)):  # j en j+1 = lijn om mee te wisselen.
-                test_path = two_opt_swap(test_path, i, j)
+        stop = True         # if no changes are made, stop the loop
+
+        for i in range(1, len(best_path) -1):      # i en i+1 = lijn A
+            for j in range(i +1, len(best_path)):  # j en j+1 = lijn om mee te wisselen.
+                test_path = two_opt_swap(best_path[:], i, j)
                 new_distance = tour_length(test_path)
-                print("best distance:", best_distance)
-                print("new distance: ", new_distance)
                 if new_distance < best_distance:
                     print("New best path found. Distance: ", new_distance)
                     print("route node count: ", len(test_path))
-                    best_path = test_path
+                    best_path = test_path[:]
                     best_distance = new_distance
                     stop = False
+                    break
+
+
+
+
     return best_path
 
 
 
-cities = make_cities(20)
+cities = make_cities(200)
 # plot_tsp(try_all_tours, cities)
 plot_tsp(NN, cities)
 
