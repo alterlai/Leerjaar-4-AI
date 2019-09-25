@@ -37,7 +37,7 @@ def NN(cities):
         current_city = closest_city
         shortest_distance = math.inf        # reset shortest distance
 
-    # path = two_opt(path)                           # Perform 2-opt algorithm on path
+    path = two_opt_intersect(path)                           # Perform 2-opt algorithm on path
     return path
 
 def alltours(cities):
@@ -81,11 +81,48 @@ def plot_tsp(algorithm, cities):
     plot_tour(tour)
 
 
+# Code van user Grumdrig gebruikt van de volgende link.
+# https://stackoverflow.com/questions/3838329/how-can-i-check-if-two-segments-intersect
+def ccw(A,B,C):
+    return (C.y-A.y) * (B.x-A.x) > (B.y-A.y) * (C.x-A.x)
+
+# Code van user Grumdrig gebruikt van de volgende link.
+# https://stackoverflow.com/questions/3838329/how-can-i-check-if-two-segments-intersect
+# Return true if line segments AB and CD intersect
+def intersect(A,B,C,D):
+    return ccw(A,C,D) != ccw(B,C,D) and ccw(A,B,C) != ccw(A,B,D)
+
 def two_opt_swap(path, i, k):
     new_route = path[0:i:]
     new_route += path[k:i:-1]
     new_route += path[k::]
     return new_route
+
+def two_opt_intersect(path):
+    best_path = path
+    stop = False
+    print("starting path length: ", tour_length(best_path))
+    print("path nodes: ", len(best_path))
+    test = best_path[0]
+    while (stop == False):
+        new_path = list()
+        stop = True
+        for i in range(0, len(best_path)):           # Loop over elke node
+            for j in range(i+1, len(best_path)):     # zoek vanaf de volgende node na i
+                if intersect(best_path[i],best_path[i+1],best_path[j],best_path[j+1]):      # Pad i intersect met pad j
+                    new_path.append(best_path[i])          # voeg de node toe aan de new_path
+                    new_path.extend(best_path[j:i:-1])     # voeg de lijnen tussen de kruising in reverse order toe
+                    new_path.extend(best_path[j+1::])      # voeg de rest van de path toe in normale volgorde
+                    best_path = new_path
+                    print("new path length: ", tour_length(new_path))
+                    print("path nodes: ", len(path))
+                    stop = False
+                    continue
+                else:   # pad intersect niet mer andere paden
+                    new_path.append(best_path[i])
+                    break
+    return best_path
+
 
 def two_opt(path):
     print(path)

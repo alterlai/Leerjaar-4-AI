@@ -14,4 +14,4 @@ print(intersect(p1, q1, p2, q2))
 
 
 list = [1,2,3,4,5]
-print(list[3:1:-1])
+print(list[4:1:-1])
