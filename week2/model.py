@@ -204,14 +204,20 @@ def value_board(b):
     # alle lege cellen rondom de gespiegelde x,y locatie van het hoogste getal verdient punten
     b_m = flip(b).tolist()      # flip het bord horizontaal en verticaal.
     # TODO: Raised nog steeds een out of bounds exception
-    if b_m[highest_value_location[0]-1][highest_value_location[1]] == 0:    # up
-        score+=s_rule3
-    if b_m[highest_value_location[0]+1][highest_value_location[1]] == 0:    # down
-        score+=s_rule3
-    if b_m[highest_value_location[0]][highest_value_location[1] -1] == 0:    # left
-        score+=s_rule3
-    if b_m[highest_value_location[0]][highest_value_location[1] +1] == 0:    # right
-        score+=s_rule3
+    x = highest_value_location[0]
+    y = highest_value_location[1]
+    if x-1 >= 0:    # heel lelijk, i know
+        if b_m[x-1][y] == 0:    # up
+            score+=s_rule3
+    if x+1 <= 3:
+        if b_m[x+1][y] == 0:    # down
+            score+=s_rule3
+    if y-1 >= 0:
+        if b_m[x][y -1] == 0:    # left
+            score+=s_rule3
+    if y+1 <= 3:
+        if b_m[x][y +1] == 0:    # right
+            score+=s_rule3
 
     # Rule 4: Hoge getallen in een hoek is een hogere score
 
