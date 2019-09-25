@@ -43,7 +43,24 @@ UP_RIGHT, DOWN_RIGHT, DOWN_LEFT, UP_LEFT = -9, 11, 9, -11
 # 8 directions; note UP_LEFT = -11, we can repeat this from row to row
 DIRECTIONS = (UP, UP_RIGHT, RIGHT, DOWN_RIGHT, DOWN, DOWN_LEFT, LEFT, UP_LEFT)
 
-DEPTH = 0
+"""
+    Heuristic board is a list that contains values for each cell that refers to the significance of having it in
+    possesion. Values are obtained from an imagine found in a report written by Roy Schestowitz
+    Link: http://othellomaster.com/OM/Report/HTML/report.html
+"""
+HEURISTIC_BOARD = [
+    '?', '?',   '?',     '?',    '?',    '?',    '?',    '?',    '?',    '?',
+    '?', 10000,  -3000,  1000,  800,     800,   1000,   -3000,   10000,  '?',
+    '?', -3000,  -5000,  -450,  -500,   -500,   -450,   -5000,  -3000,   '?',
+    '?', 1000,   -450,   30,    10,     10,     30,     -450,   1000, '?',
+    '?', 800,    -500,   10,    50,     50,     10,     -500,   800, '?',
+    '?', 800,    -500,   10,     50,    50,     10,     -500,   800, '?',
+    '?', 1000,   -450,   30,     10,    10,     30,     -450,   1000, '?',
+    '?', -3000,  -5000,  -450,   -500,  -500,   -450,   -5000,  -3000, '?',
+    '?', 10000,  -3000,  1000,   800,   800,    1000,   -3000,  10000, '?',
+    '?', '?', '?', '?', '?', '?', '?', '?', '?', '?',
+
+]
 
 
 def squares():
@@ -110,6 +127,14 @@ def find_bracket(square, player, board, direction):
         bracket += direction
     # if last square board[bracket] not in (EMPTY, OUTER, opp) then it is player
     return None if board[bracket] in (OUTER, EMPTY) else bracket
+
+
+def get_heuristic_value(board, player):
+    value = 0
+    for x in range(11, 89):
+        if board[x] == player:
+            value += HEURISTIC_BOARD[x]
+    return value
 
 
 def is_legal(move, player, board):
@@ -191,9 +216,9 @@ def play(black_strategy=None, white_strategy=None):
         print_board(board)
 
         if current_player is WHITE:
-            make_move(negamax(board, current_player)[1], current_player, board)
+            make_move(negamax(board, current_player, -500000, 500000, 10)[1], current_player, board)
         if current_player is BLACK:
-            make_move(negamax(board, current_player)[1], current_player, board)
+            make_move(negamax(board, current_player, -500000, 500000, 10)[1], current_player, board)
 
         current_player = next_player(board, current_player)
 
@@ -204,7 +229,7 @@ def play(black_strategy=None, white_strategy=None):
     else:
         print("Black has won with a score of: " + str(score(BLACK, board)))
 
-    print(print_board(board))
+    print_board(board)
 
 
 def next_player(board, prev_player):
@@ -244,29 +269,38 @@ def gameover(board):
 :param depth is an optional argument that increases depth that the algorithm will search
 
 :returns a tuple containing the heuristic score of the boardstate and the move made to get to this state
+
+best_score is the best_value found from all childnodes  and is returned to the parent
+        it can be used as alpha at the parent node
 """
 
 
-def negamax(board, player, depth=5):
+def negamax(board, player, alpha, beta, depth=5):
     copy_of_board = board[:]
 
     if depth == 0 or gameover(copy_of_board):
         # depth 0 is the deepest layer we will go. We don't care about moves, so we just return the score as heuristic
-        return score(player, copy_of_board), None
+        return get_heuristic_value(copy_of_board, player), None
 
-    best_score, best_move = -500000, None
+    best_score, best_move = -5000000, None
 
     for move in legal_moves(player, copy_of_board):
         make_move(move, player, copy_of_board)
 
         # Memorize old best score to see if the value has changed later on
         old_score = best_score
-        best_score = max(best_score, -1 * negamax(copy_of_board, opponent(player), depth-1)[0])
 
+        # Run algorithm recursively for opponent
+
+        # Compare new board state using heuristical value
+        best_score = max(best_score, negamax(copy_of_board, opponent(player), -1*alpha, -1*beta, depth - 1)[0])
         # If best_score is changed, hence not equal to old_score, update best_move
         if old_score != best_score:
             best_move = move
 
+        alpha = max(alpha, best_score)
+        if alpha >= beta:
+            break
         # Undo last move, so others are checked properly
         copy_of_board = board[:]
 
@@ -279,4 +313,9 @@ def random_move(board, player):
 
 play()
 
-# Play strategies
+# Antwoorden op losse vragen:
+# 2d)   Dit is deels afhankelijk van de beschikbare resources.
+#       De PC waar dit op is gemaakt kon tot 4 lagen diep rekenen en daarmee
+#       consistent onder de 3 seconden blijven
+#       Volgens het onderzoek dat gebruikt is voor het heuristieke bord
+#       schijnt verder zoeken dan 3 lagen diep weinig effect te hebben.
