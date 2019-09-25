@@ -182,7 +182,7 @@ def play(black_strategy, white_strategy):
     current_player = WHITE
 
     # While valid moves are still available, keep looping turns between players till game is finished
-    while any_legal_move(WHITE, board) or any_legal_move(BLACK, board):
+    while not gameover(board):
         print_board("Playing as " + current_player)
         make_move(get_move("s", current_player, board), current_player, board)
         current_player = next_player(board, current_player)
@@ -224,13 +224,39 @@ def score(player, board):
            len([x for x in range(11, 89) if board[x] == opponent(player)])
 
 
+def gameover(board):
+    return any_legal_move(WHITE, board) == False and any_legal_move(BLACK, board) == False
+
+
 def negamax(board, player):
-    # TODO: Make algorithm
-    pass
+    copy_of_board = board[:]
+
+    # Once a leafnode is hit, return the boardstate upwards so scores can be calculated
+    if gameover(copy_of_board):
+        return score(player, copy_of_board)
+
+    # Define best move on layer of recursion by getting the highest score
+    best_move = -5000000
+    highest_value = -500000
+
+    # Start loop for moves, this swaps between players for ever depth of recursion
+    for move in legal_moves(player, copy_of_board):
+        make_move(move, player, copy_of_board)
+
+        # Best score is vergelijken van huidige score, met move van de tegenstander
+        old_val = highest_value
+        highest_value = max(highest_value, -1 * negamax(copy_of_board, opponent(player)))
+
+        # If calculated value has changed -> memorize the move that was made
+        if old_val != highest_value:
+            best_move = move
+
+    return best_move
 
 
-play(None, None)
-
+# play(None, None)
+b = initial_board()
+print(negamax(b, WHITE))
 
 # Play strategies
 
