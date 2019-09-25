@@ -174,9 +174,9 @@ def value_board(b):
     # value a board state
     score = 0
     # score assignments voor elke rule
-    s_rule1 = 5     # Punten voor het hoogste getal in de hoek
+    s_rule1 = 20    # Punten voor het hoogste getal in de hoek
     s_rule2 = 5     # Gelijke getallen naast elkaar. Voor elk getal die naast elkaar ligt: bonus score
-    s_rule3 = 1
+    s_rule3 = 1     # Lege cellen in de tegenovergestelde hoek van het hoogste getal.
 
     # Rule 1: Hoogste getal in een hoek geeft punten.
     highest_value = find_highest_value(b)
@@ -213,7 +213,8 @@ def value_board(b):
     if b_m[highest_value_location[0]][highest_value_location[1] +1] == 0:    # right
         score+=s_rule3
 
-    # Rule 4:
+    # Rule 4: Hoge getallen in een hoek is een hogere score
+
 
     return score
 
