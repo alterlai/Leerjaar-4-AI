@@ -38,8 +38,13 @@ def NN(cities):
         current_city = closest_city
         shortest_distance = math.inf        # reset shortest distance
 
-    path = two_opt(path)                           # Perform 2-opt algorithm on path
-    return path
+    two_opt_path = two_opt(path)                           # Perform 2-opt algorithm on path
+    print("--------------------")
+    print("NN distance: ", tour_length(path))
+    print("2-opt distance: ", tour_length(two_opt_path))
+    print("improvement: ", (tour_length(two_opt_path) - tour_length(path)) / tour_length(path))
+
+    return two_opt_path
 
 def alltours(cities):
     # return a list of tours (a list of lists), each tour a permutation of cities,
@@ -135,24 +140,20 @@ def two_opt(path):
 
         for i in range(1, len(best_path) -1):      # i en i+1 = lijn A
             for j in range(i +1, len(best_path)):  # j en j+1 = lijn om mee te wisselen.
-                test_path = two_opt_swap(best_path[:], i, j)
+                test_path = two_opt_swap(best_path[:], i, j)    # maak een nieuw pad aan met een 2opt swap
                 new_distance = tour_length(test_path)
-                if new_distance < best_distance:
+                if new_distance < best_distance:    # als de nieuwe distance kleiner is is het een optimalisatie
                     print("New best path found. Distance: ", new_distance)
                     print("route node count: ", len(test_path))
-                    best_path = test_path[:]
+                    best_path = test_path[:]        # het nieuwe pad is beter dan de oude.
                     best_distance = new_distance
-                    stop = False
+                    stop = False                    # er is een verbetering gemaakt, dus opnieuw.
                     break
-
-
-
-
     return best_path
 
 
 
-cities = make_cities(200)
+cities = make_cities(500)
 # plot_tsp(try_all_tours, cities)
 plot_tsp(NN, cities)
 
@@ -161,4 +162,11 @@ plot_tsp(NN, cities)
 # 500 city tour with length 20485.6 in 0.058 secs for NN
 
 # 1C)
-# Niet 1 vast aantal. Verschilt per gegenereerde plattegrond.
+# - Niet 1 vast aantal. Verschilt per gegenereerde plattegrond.
+# - Twee lijnen pakken en de orientatie van (p1, q1, p2) en (p1, q1 en q2) met elkaar te vergelijken.
+#   Als de orientatie niet overeenkomt en ook de bouding boxen van beide lijnen met elkaar intersecten, kruisen de lijnen.
+# - Nee, een kruising is per definitie minder efficient dan een weg zonder kruisingen.
+
+# 1D) 16%
+
+# E) O(n)^n
