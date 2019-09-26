@@ -203,7 +203,6 @@ def value_board(b):
     # Rule 3: Lege cellen in de tegenovergestelde hoek van het hoogste getal.
     # alle lege cellen rondom de gespiegelde x,y locatie van het hoogste getal verdient punten
     b_m = flip(b).tolist()      # flip het bord horizontaal en verticaal.
-    # TODO: Raised nog steeds een out of bounds exception
     x = highest_value_location[0]
     y = highest_value_location[1]
     if x-1 >= 0:    # heel lelijk, i know
@@ -224,15 +223,19 @@ def value_board(b):
 
     return score
 
-def generate_next_board_states(b, depth=3):
+def expectimax(b, depth=3):
     # Generate possible board states given a certain depth.
     # possibilities = dict['direction' => [(boardstate, chance, value), ...]]
 
-    possibilities = dict()
+    if depth==0 or game_state(b) == 'win' :
+        return value_board(b), None
+
+    best_move = None
+    best_score = 0
 
     for direction in MERGE_FUNCTIONS.keys():            # Loop over elke mogelijke zet
-        possibilities[direction] = list()               # Creer een lijst voor alle mogelijke board states
         state = MERGE_FUNCTIONS[direction](b)           # create board state
+        moves = list()
         for row in range(0, len(state)):                # check each empty cell and assign either 2 or 4 as value
             for column in (range(0, len(state))):
                 if state[row][column] == 0:
@@ -240,14 +243,24 @@ def generate_next_board_states(b, depth=3):
                     temp4 = copy.deepcopy(state)        # deepcopy to avoid changing lists in lists.
                     temp2[row][column] = 2
                     temp4[row][column] = 4
-                    possibilities[direction].append((temp2, 0.9, value_board(temp2)))   # add to list with it's possiblity and value
-                    possibilities[direction].append((temp4, 0.1, value_board(temp4)))
-    return possibilities
+                    moves.append(0.9 * expectimax(temp2, depth-1)[0])   # add to list with it's possiblity and value
+                    moves.append(0.1 * expectimax(temp4, depth-1)[0])
+
+        try:
+            if sum(moves) / len(moves) > best_score:
+                best_score = sum(moves) / len(moves)
+                best_move = direction
+        except ZeroDivisionError:
+            pass
+
+
+    return best_score, best_move
 
 
 def get_random_move():
     return random.choice(list(MERGE_FUNCTIONS.keys()))
 
 def get_expectimax_move(b):
-    board_states = generate_next_board_states(b, depth=3)
-    return 'left'
+    move = expectimax(b, 1)
+    print(move)
+    return move[1]
