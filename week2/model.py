@@ -6,6 +6,7 @@ from numpy import flip
 
 MAX_DEPTH = 3
 
+
 def merge_left(b):
     # merge the board left
     # this is the funcyoin that is reused in the other merges
@@ -40,6 +41,7 @@ def merge_left(b):
         new_b.append(merged)
     # return [[2, 8, 0, 0], [2, 4, 8, 0], [4, 0, 0, 0], [4, 4, 0, 0]]
     return new_b
+
 
 def merge_right(b):
     # merge the board right
@@ -82,6 +84,7 @@ MERGE_FUNCTIONS = {
     'down': merge_down
 }
 
+
 def move_exists(b):
     # check whether or not a move exists on the board
     # b = [[1, 2, 3, 4], [5, 6, 7, 8]]
@@ -98,6 +101,7 @@ def move_exists(b):
         return True
     else:
         return False
+
 
 def start():
     # make initial board
@@ -120,7 +124,7 @@ def add_two_four(b):
     rows, cols = list(range(4)), list(range(4))
     random.shuffle(rows)
     random.shuffle(cols)
-    distribution = [2] * 9 + [4] *10
+    distribution = [2] * 9 + [4] * 10
     for i, j in itertools.product(rows, rows):
         if b[i][j] == 0:
             b[i][j] = random.sample(distribution, 1)[0]
@@ -128,12 +132,14 @@ def add_two_four(b):
         else:
             continue
 
+
 def game_state(b):
     for i in range(4):
         for j in range(4):
             if b[i][j] >= 2048:
                 return 'win'
     return 'lose'
+
 
 def test():
     b = [[0, 2, 4, 4], [0, 2, 4, 8], [0, 0, 0, 4], [2, 2, 2, 2]]
@@ -163,6 +169,7 @@ def find_highest_value(b):
                 value = b[row][column]
     return value
 
+
 def find_highest_value_location(b, highest_value):
     for row in range(0, len(b)):
         for column in (range(0, len(b))):
@@ -170,13 +177,49 @@ def find_highest_value_location(b, highest_value):
                 return (row, column)  # Location of highest value, used in rule 3
 
 
+def check_mergecourse(board, start_point_row, start_point_column, direction):
+    for x in range(1, 4):
+        if direction == "horizontal":
+            # If the next adjacent node isnt 0 or a different number than what we are checking, it isnt on merge course
+            if board[start_point_row][start_point_column] != board[start_point_row + x][start_point_column] and \
+                    board[start_point_row + x][start_point_column] != 0:
+                return False
+            return True
+
+        if direction == "vertical":
+            # If the next adjacent node isnt 0 or a different number than what we are checking, it isnt on merge course
+            if board[start_point_row][start_point_column] != board[start_point_row + x][start_point_column] and \
+                    board[start_point_row + x][start_point_column] != 0:
+                return False
+            return True
+
+
+def mergedifference(board, waarde):
+    val = waarde
+    highest = find_highest_value(board)
+    merges_to_highest = 0
+    while val < highest and val != 0:
+        print("Checking merge diff on: " + str(val) + " with " + str(highest))
+        merges_to_highest += 1
+        val = val*2
+    return merges_to_highest
+
+
 def value_board(b):
     # value a board state
     score = 0
+
     # score assignments voor elke rule
-    s_rule1 = 20    # Punten voor het hoogste getal in de hoek
-    s_rule2 = 5     # Gelijke getallen naast elkaar. Voor elk getal die naast elkaar ligt: bonus score
-    s_rule3 = 1     # Lege cellen in de tegenovergestelde hoek van het hoogste getal.
+    s_rule1 = 500  # Punten voor het hoogste getal in de hoek
+    s_rule2 = 10  # Gelijke getallen naast elkaar. Voor elk getal die naast elkaar ligt: bonus score
+    s_rule3 = 20  # Lege cellen in de tegenovergestelde hoek van het hoogste getal.
+
+    # Getallen hebben hun eigen waarde, maar de gemergde waarde van 2 dezelfden moet hoger zijn dan 2 lossen
+    # => 2x 32 op merge course is 25 dus 1x 64 moet hoger zijn dan 25. Ook lege vakken hebben waarde
+    s_rule4 = {0: 10, 2: 10, 4: 15, 8: 25, 16: 35, 32: 45, 64: 55, 128: 65, 256: 75, 512: 85, 1024: 95, 2048: 10000}
+
+    # Rule 2 value factors dictionary
+    MERGE_FACTORS = {0: 1, 2: 2, 4: 4, 8: 8, 16: 16, 32: 32, 64: 64, 128: 128, 256: 256, 512: 512, 1024: 1024, 2048: 2048}
 
     # Rule 1: Hoogste getal in een hoek geeft punten.
     highest_value = find_highest_value(b)
@@ -184,7 +227,7 @@ def value_board(b):
     for row in range(0, len(b), 3):
         for column in (range(0, len(b), 3)):
             if b[row][column] == highest_value:
-                score += s_rule1
+                score += s_rule1 * MERGE_FACTORS.get(b[row][column])
                 break
         if score != 0:
             break
@@ -193,58 +236,66 @@ def value_board(b):
     for row in range(0, len(b)):
         for column in range(0, len(b)):
             try:
-                if b[row][column] != 0 and b[row][column] == b[row][column+1]:  # getallen op de X as naast elkaar
-                    score += s_rule2
-                if b[row][column] != 0 and b[row][column] == b[row+1][column]:  # getallen op de Y as naast elkaar
-                    score += s_rule2
-            except(IndexError):
+                if b[row][column] != 0 and check_mergecourse(b, row, column, "horizontal"):  # getallen op de X as naast elkaar
+                    score += s_rule2 * MERGE_FACTORS.get(b[row][column])
+                if b[row][column] != 0 and check_mergecourse(b, row, column, "vertical"):  # getallen op de Y as naast elkaar
+                    score += s_rule2 * MERGE_FACTORS.get(b[row][column])
+            except IndexError:
                 pass
 
     # Rule 3: Lege cellen in de tegenovergestelde hoek van het hoogste getal.
     # alle lege cellen rondom de gespiegelde x,y locatie van het hoogste getal verdient punten
-    b_m = flip(b).tolist()      # flip het bord horizontaal en verticaal.
+    b_m = flip(b).tolist()  # flip het bord horizontaal en verticaal.
     x = highest_value_location[0]
     y = highest_value_location[1]
-    if x-1 >= 0:    # heel lelijk, i know
-        if b_m[x-1][y] == 0:    # up
-            score+=s_rule3
-    if x+1 <= 3:
-        if b_m[x+1][y] == 0:    # down
-            score+=s_rule3
-    if y-1 >= 0:
-        if b_m[x][y -1] == 0:    # left
-            score+=s_rule3
-    if y+1 <= 3:
-        if b_m[x][y +1] == 0:    # right
-            score+=s_rule3
+    if x - 1 >= 0:  # heel lelijk, i know
+        if b_m[x - 1][y] == 0:  # up
+            score += s_rule3
+    if x + 1 <= 3:
+        if b_m[x + 1][y] == 0:  # down
+            score += s_rule3
+    if y - 1 >= 0:
+        if b_m[x][y - 1] == 0:  # left
+            score += s_rule3
+    if y + 1 <= 3:
+        if b_m[x][y + 1] == 0:  # right
+            score += s_rule3
 
-    # Rule 4: Hoge getallen in een hoek is een hogere score
-
+    # Rule 4: Elk getal heeft een waarde op het bord. Als het getal op de rand ligt dan verdubbelt zijn waarde
+    # Hierbij wordt ook het verschil in merges EN afstand tot hoogste node meegenomen => 2 naar 64 verschilt 4 merges
+    # Hoe kleiner dit merge verschil hoe beter, er wordt per merge afstand score weggehaald
+    for row in range(0, len(b)):
+        for column in range(0, len(b)):
+            if row not in range(1, 3) or column not in range(1, 3):
+                score += s_rule4.get(b[row][column]) * 2 - mergedifference(b, b[row][column]) * s_rule4.get(b[row][column])
+            else:
+                score += s_rule4.get(b[row][column]) - mergedifference(b, b[row][column]) * s_rule4.get(b[row][column])
 
     return score
+
 
 def expectimax(b, depth=3):
     # Generate possible board states given a certain depth.
     # possibilities = dict['direction' => [(boardstate, chance, value), ...]]
 
-    if depth==0 or game_state(b) == 'win' :
+    if depth == 0 or game_state(b) == 'win':
         return value_board(b), None
 
     best_move = None
     best_score = 0
 
-    for direction in MERGE_FUNCTIONS.keys():            # Loop over elke mogelijke zet
-        state = MERGE_FUNCTIONS[direction](b)           # create board state
+    for direction in MERGE_FUNCTIONS.keys():  # Loop over elke mogelijke zet
+        state = MERGE_FUNCTIONS[direction](b)  # create board state
         moves = list()
-        for row in range(0, len(state)):                # check each empty cell and assign either 2 or 4 as value
+        for row in range(0, len(state)):  # check each empty cell and assign either 2 or 4 as value
             for column in (range(0, len(state))):
                 if state[row][column] == 0:
-                    temp2 = copy.deepcopy(state)        # deepcopy to avoid changing lists in lists.
-                    temp4 = copy.deepcopy(state)        # deepcopy to avoid changing lists in lists.
+                    temp2 = copy.deepcopy(state)  # deepcopy to avoid changing lists in lists.
+                    temp4 = copy.deepcopy(state)  # deepcopy to avoid changing lists in lists.
                     temp2[row][column] = 2
                     temp4[row][column] = 4
-                    moves.append(0.9 * expectimax(temp2, depth-1)[0])   # add to list with it's possiblity and value
-                    moves.append(0.1 * expectimax(temp4, depth-1)[0])
+                    moves.append(0.9 * expectimax(temp2, depth - 1)[0])  # add to list with it's possiblity and value
+                    moves.append(0.1 * expectimax(temp4, depth - 1)[0])
 
         try:
             if sum(moves) / len(moves) > best_score:
@@ -253,12 +304,12 @@ def expectimax(b, depth=3):
         except ZeroDivisionError:
             pass
 
-
     return best_score, best_move
 
 
 def get_random_move():
     return random.choice(list(MERGE_FUNCTIONS.keys()))
+
 
 def get_expectimax_move(b):
     move = expectimax(b, 1)
