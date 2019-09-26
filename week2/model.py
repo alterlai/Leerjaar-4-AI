@@ -170,13 +170,22 @@ def find_highest_value_location(b, highest_value):
                 return (row, column)  # Location of highest value, used in rule 3
 
 
+def count_empyt_squares(b):
+    count = 0
+    for row in range(0, len(b)):
+        for column in (range(0, len(b))):
+            if b[row][column] == 0:
+                count += 1
+    return count
+
 def value_board(b):
     # value a board state
     score = 0
     # score assignments voor elke rule
-    s_rule1 = 20    # Punten voor het hoogste getal in de hoek
-    s_rule2 = 5     # Gelijke getallen naast elkaar. Voor elk getal die naast elkaar ligt: bonus score
-    s_rule3 = 1     # Lege cellen in de tegenovergestelde hoek van het hoogste getal.
+    s_rule1 = 300    # Punten voor het hoogste getal in de hoek
+    s_rule2 = 25     # Gelijke getallen naast elkaar. Voor elk getal die naast elkaar ligt: bonus score
+    s_rule3 = 10     # Lege cellen in de tegenovergestelde hoek van het hoogste getal.
+    s_rule4 = 15
 
     # Rule 1: Hoogste getal in een hoek geeft punten.
     highest_value = find_highest_value(b)
@@ -219,6 +228,7 @@ def value_board(b):
             score+=s_rule3
 
     # Rule 4: Hoge getallen in een hoek is een hogere score
+    score += s_rule4 * count_empyt_squares(b)
 
 
     return score
@@ -261,6 +271,6 @@ def get_random_move():
     return random.choice(list(MERGE_FUNCTIONS.keys()))
 
 def get_expectimax_move(b):
-    move = expectimax(b, 1)
+    move = expectimax(b, 2)
     print(move)
     return move[1]
