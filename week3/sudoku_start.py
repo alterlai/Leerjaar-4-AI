@@ -1,4 +1,5 @@
 import time
+from collections import OrderedDict
 
 
 # helper function
@@ -87,21 +88,38 @@ def no_conflict(grid, c, v):
 
 
 def is_solution(grid: dict):
+    # Every move that was made is already checked for validity, no need to check again
     for cell in grid.values():
         if cell == '123456789':
             return False
     return True
 
 
-def solve(grid: dict):
-    if is_solution(grid):
+def solve(grid: dict, solutions):
+    if is_solution(grid) and grid not in solutions:
+        solutions.append(grid)
         return grid
 
-    answer_matrix = get_answer_matrix(grid)
+    copy_of_grid = grid.copy()
+    answer_matrix = get_answer_matrix(copy_of_grid)
+    answer_matrix_sorted_keys = sorted(answer_matrix, key=lambda column: len(answer_matrix[column]), reverse=False)
 
-    # Look for least possible answers in answer_matrix
-    # TODO: Hieer was ik gebleven
-    cell = answer_matrix.
+    # Iterate through answer_matrix from least possible answers to most possible answers
+    # https://stackoverflow.com/questions/16868457/python-sorting-dictionary-by-length-of-values
+    for column in answer_matrix_sorted_keys:
+        # For each row per column, check for conflicts
+        if len(answer_matrix.get(column)) < 1:
+            break
+
+        for row in answer_matrix.get(column):
+            if no_conflict(copy_of_grid, column, row):
+                make_move(copy_of_grid, column, row)
+                copy_of_grid = solve(copy_of_grid, solutions)
+    return copy_of_grid
+
+
+def make_move(grid: dict, column: str, row: str):
+    grid.update({column: row})
 
 
 def get_answer_matrix(grid: dict):
@@ -144,11 +162,15 @@ for i, sudo in enumerate(slist):
     print('*** sudoku {0} ***'.format(i))
     print(sudo)
     d = parse_string_to_dict(sudo)
+    display(d)
+    solutions = []
     start_time = time.time()
-    solve(d)
+    solve(d, solutions)
     end_time = time.time()
     hours, rem = divmod(end_time - start_time, 3600)
     minutes, seconds = divmod(rem, 60)
     print("duration [hh:mm:ss.ddd]: {:0>2}:{:0>2}:{:06.3f}".format(int(hours), int(minutes), seconds))
-    print()
+    for solution in solutions:
+        display(solution)
+
 
