@@ -98,24 +98,27 @@ def is_solution(grid: dict):
 def solve(grid: dict, solutions):
     if is_solution(grid) and grid not in solutions:
         solutions.append(grid)
-        # return grid
+        return grid
 
     copy_of_grid = grid.copy()
     answer_matrix = get_answer_matrix(copy_of_grid)
     answer_matrix_sorted_keys = sorted(answer_matrix, key=lambda column: len(answer_matrix[column]), reverse=False)
 
+    # If one of the answer rows is empty, the previous move caused an invalid state.
+    for row in answer_matrix:
+        if len(row) < 1:
+            return copy_of_grid
+
     # Iterate through answer_matrix from least possible answers to most possible answers
     # https://stackoverflow.com/questions/16868457/python-sorting-dictionary-by-length-of-values
     for column in answer_matrix_sorted_keys:
         # For each row per column, check for conflicts
-        if len(answer_matrix.get(column)) < 1:
-            break
-
         for row in answer_matrix.get(column):
             if no_conflict(copy_of_grid, column, row):
                 make_move(copy_of_grid, column, row)
-                solve(copy_of_grid, solutions)
-    # return copy_of_grid
+                copy_of_grid = solve(copy_of_grid, solutions)
+
+    return copy_of_grid
 
 
 def make_move(grid: dict, column: str, row: str):
