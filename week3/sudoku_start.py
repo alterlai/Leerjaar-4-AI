@@ -98,7 +98,7 @@ def is_solution(grid: dict):
 def solve(grid: dict, solutions):
     if is_solution(grid) and grid not in solutions:
         solutions.append(grid)
-        return grid
+        # return grid
 
     copy_of_grid = grid.copy()
     answer_matrix = get_answer_matrix(copy_of_grid)
@@ -114,8 +114,8 @@ def solve(grid: dict, solutions):
         for row in answer_matrix.get(column):
             if no_conflict(copy_of_grid, column, row):
                 make_move(copy_of_grid, column, row)
-                copy_of_grid = solve(copy_of_grid, solutions)
-    return copy_of_grid
+                solve(copy_of_grid, solutions)
+    # return copy_of_grid
 
 
 def make_move(grid: dict, column: str, row: str):
@@ -123,7 +123,6 @@ def make_move(grid: dict, column: str, row: str):
 
 
 def get_answer_matrix(grid: dict):
-    # TODO: Move answer_matrix outside of recursion to reduce time consumption
     answer_matrix = dict()
     for cell in grid.items():
         # If the values in the dict are 123456789, check for possible solutions
