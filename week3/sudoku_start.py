@@ -29,6 +29,7 @@ unit_list = ([cross(r, cols) for r in rows] +  # 9 rows
 # units['A1'] is a list of lists, and sum(units['A1'],[]) flattens this list
 units = dict((s, [u for u in unit_list if s in u]) for s in cells)
 peers = dict((s, set(sum(units[s], [])) - {s}) for s in cells)
+solutions = []
 
 
 def test():
@@ -100,44 +101,31 @@ def is_valid(grid: dict):
     return True
 
 
-def solve(grid: dict, solutions, path=list()):
-    if is_solution(grid) and grid not in solutions:
+def solve(grid: dict):
+    if is_solution(grid):
         solutions.append(grid)
-
-    copy_of_grid = grid.copy()
+        print('FOUND A SOLUTION')
+        return True
 
     # Answer_matrix is a dict that has all possible moves PER cell stored where key=cell and value=[moves]
-    # sorted_keys is a list of all keys from answer_matrix ordered from length of the value of answer_matrix
-    answer_matrix = get_answer_matrix(copy_of_grid)
-    answer_matrix_sorted_keys = sorted(answer_matrix, key=lambda column: len(answer_matrix[column]), reverse=False)
+    # sorted_cells is a list of all keys from answer_matrix ordered from length of the value of answer_matrix
+    answer_matrix = get_answer_matrix(grid)
+    answer_matrix_sorted_cells = sorted(answer_matrix, key=lambda column: len(answer_matrix[column]), reverse=False)
 
     # If one of the answer rows is empty, the previous move caused an invalid state.
-    if len(answer_matrix_sorted_keys) > 0 and len(answer_matrix.get(answer_matrix_sorted_keys[0])) < 1:
-        path.pop()
-        return path.pop()
-
-    # If in a valid state, do all certain moves (cells in answer_matrix with a len(value) == 1)
-    # certain_moves = [(cell, value[0]) for cell, value in answer_matrix.items() if len(value) == 1]
-    # if len(certain_moves) > 0:
-    #     if certain_moves_valid(copy_of_grid, certain_moves):
-    #         for cell, value in certain_moves:
-    #             make_move(copy_of_grid, cell, value)
-    #             answer_matrix_sorted_keys.remove(cell)
-    #         path.append(copy_of_grid)
-        # else:
-        #     # If the certain moves cause an invalid state, move back up with previous state
-        #     return path.pop()
+    if len(answer_matrix_sorted_cells) > 0 and len(answer_matrix.get(answer_matrix_sorted_cells[0])) < 1:
+        return
 
     # Iterate through answer_matrix from least possible answers to most possible answers
-    for column in answer_matrix_sorted_keys:
+    for cell in answer_matrix_sorted_cells:
         # For each row per column, check for conflicts
-        for row in answer_matrix.get(column):
-            if no_conflict(copy_of_grid, column, row):
-                make_move(copy_of_grid, column, row)
-                path.append(copy_of_grid)
-                copy_of_grid = solve(copy_of_grid, solutions, path)
-
-    return copy_of_grid
+        for value in answer_matrix.get(cell):
+            if no_conflict(grid, cell, value):
+                temp_grid = grid.copy()
+                make_move(temp_grid, cell, value)
+                if solve(temp_grid):
+                    return True
+    return False
 
 
 def make_move(grid: dict, column: str, row: str):
@@ -191,21 +179,17 @@ slist[17] = '..5...987.4..5...1..7......2...48....9.1.....6..2.....3..6..2......
 slist[18] = '3.6.7...........518.........1.4.5...7.....6.....2......2.....4.....8.3.....5.....'
 slist[19] = '1.....3.8.7.4..............2.3.1...........958.........5.6...7.....8.2...4.......'
 
-solutions = []
-solve(parse_string_to_dict(slist[1]), solutions)
-for solution in solutions:
-    display(solution)
-# for i, sudo in enumerate(slist):
-#     print('*** sudoku {0} ***'.format(i))
-#     print(sudo)
-#     d = parse_string_to_dict(sudo)
-#     display(d)
-#     solutions = []
-#     start_time = time.time()
-#     solve(d, solutions)
-#     end_time = time.time()
-#     hours, rem = divmod(end_time - start_time, 3600)
-#     minutes, seconds = divmod(rem, 60)
-#     print("duration [hh:mm:ss.ddd]: {:0>2}:{:0>2}:{:06.3f}".format(int(hours), int(minutes), seconds))
-#     for solution in solutions:
-#         display(solution)
+# Works for 4 and 11
+for i, sudo in enumerate(slist):
+    print('*** sudoku {0} ***'.format(i))
+    print(sudo)
+    d = parse_string_to_dict(sudo)
+    display(d)
+    start_time = time.time()
+    solve(d)
+    end_time = time.time()
+    hours, rem = divmod(end_time - start_time, 3600)
+    minutes, seconds = divmod(rem, 60)
+    print("duration [hh:mm:ss.ddd]: {:0>2}:{:0>2}:{:06.3f}".format(int(hours), int(minutes), seconds))
+    for solution in solutions:
+        print(solution)
