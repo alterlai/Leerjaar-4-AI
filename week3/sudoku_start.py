@@ -86,17 +86,23 @@ def no_conflict(grid, c, v):
 
 
 def is_solution(grid: dict):
-    # Every move that was made is already checked for validity, no need to check again
     for cell in grid.values():
         if cell == '123456789':
             return False
+    return is_valid(grid)
+
+
+def is_valid(grid: dict):
+    for cell, value in grid.items():
+        for peer in peers[cell]:
+            if value == grid[peer]:
+                return False
     return True
 
 
 def solve(grid: dict, solutions, path=list()):
     if is_solution(grid) and grid not in solutions:
         solutions.append(grid)
-        return grid
 
     copy_of_grid = grid.copy()
 
@@ -107,18 +113,22 @@ def solve(grid: dict, solutions, path=list()):
 
     # If one of the answer rows is empty, the previous move caused an invalid state.
     if len(answer_matrix_sorted_keys) > 0 and len(answer_matrix.get(answer_matrix_sorted_keys[0])) < 1:
-            path.pop()
-            return path.pop()
+        path.pop()
+        return path.pop()
 
     # If in a valid state, do all certain moves (cells in answer_matrix with a len(value) == 1)
-    # TODO: If this block is uncommented, it makes invalid moves, probably check something with answer_matrices
-    for cell, move in answer_matrix.items():
-        if len(move) == 1:
-            make_move(copy_of_grid, cell, move[0])
-            answer_matrix_sorted_keys.remove(cell)
+    # certain_moves = [(cell, value[0]) for cell, value in answer_matrix.items() if len(value) == 1]
+    # if len(certain_moves) > 0:
+    #     if certain_moves_valid(copy_of_grid, certain_moves):
+    #         for cell, value in certain_moves:
+    #             make_move(copy_of_grid, cell, value)
+    #             answer_matrix_sorted_keys.remove(cell)
+    #         path.append(copy_of_grid)
+        # else:
+        #     # If the certain moves cause an invalid state, move back up with previous state
+        #     return path.pop()
 
     # Iterate through answer_matrix from least possible answers to most possible answers
-    # https://stackoverflow.com/questions/16868457/python-sorting-dictionary-by-length-of-values
     for column in answer_matrix_sorted_keys:
         # For each row per column, check for conflicts
         for row in answer_matrix.get(column):
@@ -136,14 +146,26 @@ def make_move(grid: dict, column: str, row: str):
 
 def get_answer_matrix(grid: dict):
     answer_matrix = dict()
-    for cell in grid.items():
+    for cell, value in grid.items():
         # If the values in the dict are 123456789, check for possible solutions
-        if cell[1] == '123456789':
-            answer_matrix.update({cell[0]: []})
-            for value in '123456789':
-                if no_conflict(grid, cell[0], value):
-                    answer_matrix.get(cell[0]).append(value)
+        if value == '123456789':
+            answer_matrix.update({cell: []})
+            for number in '123456789':
+                if no_conflict(grid, cell, number):
+                    answer_matrix.get(cell).append(number)
     return answer_matrix
+
+
+def certain_moves_valid(grid: dict, moves: list):
+    temp_grid = grid.copy()
+    for move in moves:
+        if no_conflict(temp_grid, move[0], move[1]):
+            make_move(temp_grid, move[0], move[1])
+        else:
+            # There was an invalid move
+            return False
+    # All moves are deemed valid
+    return True
 
 
 # minimum nr of clues for a unique solution is 17
@@ -169,17 +191,21 @@ slist[17] = '..5...987.4..5...1..7......2...48....9.1.....6..2.....3..6..2......
 slist[18] = '3.6.7...........518.........1.4.5...7.....6.....2......2.....4.....8.3.....5.....'
 slist[19] = '1.....3.8.7.4..............2.3.1...........958.........5.6...7.....8.2...4.......'
 
-for i, sudo in enumerate(slist):
-    print('*** sudoku {0} ***'.format(i))
-    print(sudo)
-    d = parse_string_to_dict(sudo)
-    display(d)
-    solutions = []
-    start_time = time.time()
-    solve(d, solutions)
-    end_time = time.time()
-    hours, rem = divmod(end_time - start_time, 3600)
-    minutes, seconds = divmod(rem, 60)
-    print("duration [hh:mm:ss.ddd]: {:0>2}:{:0>2}:{:06.3f}".format(int(hours), int(minutes), seconds))
-    for solution in solutions:
-        display(solution)
+solutions = []
+solve(parse_string_to_dict(slist[1]), solutions)
+for solution in solutions:
+    display(solution)
+# for i, sudo in enumerate(slist):
+#     print('*** sudoku {0} ***'.format(i))
+#     print(sudo)
+#     d = parse_string_to_dict(sudo)
+#     display(d)
+#     solutions = []
+#     start_time = time.time()
+#     solve(d, solutions)
+#     end_time = time.time()
+#     hours, rem = divmod(end_time - start_time, 3600)
+#     minutes, seconds = divmod(rem, 60)
+#     print("duration [hh:mm:ss.ddd]: {:0>2}:{:0>2}:{:06.3f}".format(int(hours), int(minutes), seconds))
+#     for solution in solutions:
+#         display(solution)
