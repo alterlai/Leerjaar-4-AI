@@ -1,6 +1,4 @@
 import time
-from collections import OrderedDict
-
 
 # helper function
 def cross(A, B):
@@ -95,19 +93,29 @@ def is_solution(grid: dict):
     return True
 
 
-def solve(grid: dict, solutions):
+def solve(grid: dict, solutions, path=list()):
     if is_solution(grid) and grid not in solutions:
         solutions.append(grid)
         return grid
 
     copy_of_grid = grid.copy()
+
+    # Answer_matrix is a dict that has all possible moves PER cell stored where key=cell and value=[moves]
+    # sorted_keys is a list of all keys from answer_matrix ordered from length of the value of answer_matrix
     answer_matrix = get_answer_matrix(copy_of_grid)
     answer_matrix_sorted_keys = sorted(answer_matrix, key=lambda column: len(answer_matrix[column]), reverse=False)
 
     # If one of the answer rows is empty, the previous move caused an invalid state.
-    for row in answer_matrix:
-        if len(row) < 1:
-            return copy_of_grid
+    if len(answer_matrix_sorted_keys) > 0 and len(answer_matrix.get(answer_matrix_sorted_keys[0])) < 1:
+            path.pop()
+            return path.pop()
+
+    # If in a valid state, do all certain moves (cells in answer_matrix with a len(value) == 1)
+    # TODO: If this block is uncommented, it makes invalid moves, probably check something with answer_matrices
+    for cell, move in answer_matrix.items():
+        if len(move) == 1:
+            make_move(copy_of_grid, cell, move[0])
+            answer_matrix_sorted_keys.remove(cell)
 
     # Iterate through answer_matrix from least possible answers to most possible answers
     # https://stackoverflow.com/questions/16868457/python-sorting-dictionary-by-length-of-values
@@ -116,7 +124,8 @@ def solve(grid: dict, solutions):
         for row in answer_matrix.get(column):
             if no_conflict(copy_of_grid, column, row):
                 make_move(copy_of_grid, column, row)
-                copy_of_grid = solve(copy_of_grid, solutions)
+                path.append(copy_of_grid)
+                copy_of_grid = solve(copy_of_grid, solutions, path)
 
     return copy_of_grid
 
@@ -174,5 +183,3 @@ for i, sudo in enumerate(slist):
     print("duration [hh:mm:ss.ddd]: {:0>2}:{:0>2}:{:06.3f}".format(int(hours), int(minutes), seconds))
     for solution in solutions:
         display(solution)
-
-
