@@ -104,7 +104,6 @@ def is_valid(grid: dict):
 def solve(grid: dict):
     if is_solution(grid):
         solutions.append(grid)
-        print('FOUND A SOLUTION')
         return True
 
     # Answer_matrix is a dict that has all possible moves PER cell stored where key=cell and value=[moves]
@@ -114,7 +113,7 @@ def solve(grid: dict):
 
     # If one of the answer rows is empty, the previous move caused an invalid state.
     if len(answer_matrix_sorted_cells) > 0 and len(answer_matrix.get(answer_matrix_sorted_cells[0])) < 1:
-        return
+        return False
 
     # Iterate through answer_matrix from least possible answers to most possible answers
     for cell in answer_matrix_sorted_cells:
@@ -123,9 +122,7 @@ def solve(grid: dict):
             if no_conflict(grid, cell, value):
                 temp_grid = grid.copy()
                 make_move(temp_grid, cell, value)
-                if solve(temp_grid):
-                    return True
-    return False
+                return solve(temp_grid)
 
 
 def make_move(grid: dict, column: str, row: str):
@@ -192,4 +189,5 @@ for i, sudo in enumerate(slist):
     minutes, seconds = divmod(rem, 60)
     print("duration [hh:mm:ss.ddd]: {:0>2}:{:0>2}:{:06.3f}".format(int(hours), int(minutes), seconds))
     for solution in solutions:
-        print(solution)
+        display(solution)
+    solutions.clear()
