@@ -4,6 +4,18 @@ import time
 solution_found = False
 start = time.clock()
 for (L, M, N, E, J) in list(itertools.permutations([0,1,2,3,4])):
+    # Erik woont hoger dan marja
+    if E - M < 0:
+        continue
+
+    # Joop en erik mogen niet onder of boven elkaar wonen.
+    if abs(J-E) == 1:
+        continue
+
+    #Niels en marja mogen niet onder of boven elkaar wonen.
+    if abs(N-M) == 1:
+        continue
+
     # Marja mag niet op de began grond
     if M == 0:
         continue
@@ -18,18 +30,6 @@ for (L, M, N, E, J) in list(itertools.permutations([0,1,2,3,4])):
 
     # Niels mag niet op de bovenste verdieping
     if N == 4:
-        continue
-
-    # Erik woont hoger dan marja
-    if E - M < 0:
-        continue
-
-    # Joop en erik mogen niet onder of boven elkaar wonen.
-    if abs(J-E) == 1:
-        continue
-
-    #Niels en marja mogen niet onder of boven elkaar wonen.
-    if abs(N-M) == 1:
         continue
 
     # Als we hier komen voldoet de permutatie aan alle voorwaarden
