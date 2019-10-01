@@ -74,6 +74,10 @@ def is_geldig_bord(bord):
         if kaart == 'H' and 'V' not in buren and '' not in buren:
             return False
 
+        # Dezeflde kaarten mogen niet naast elkaar liggen
+        if kaart != '' and kaart in buren:
+            return False
+
         # elke Vrouw grenst aan een Boer
         if kaart == 'V' and 'B' not in buren and '' not in buren:
             return False
@@ -82,9 +86,7 @@ def is_geldig_bord(bord):
         if kaart == 'A' and 'V' in buren and '' not in buren:
             return False
 
-        # Dezeflde kaarten mogen niet naast elkaar liggen
-        if kaart != '' and kaart in buren:
-            return False
+
     return True
 
 def print_layout(solution):
