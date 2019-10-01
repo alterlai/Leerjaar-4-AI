@@ -15,6 +15,7 @@ grenzingen = {
     7 : [5]
 }
 solutions = []
+dfs_count = 0
 
 def brute_force():
     count = 0  # telling van hoeveelheid iteraties voor hij de eerste oplossing vindt.
@@ -25,30 +26,7 @@ def brute_force():
         found_solution = True       # Zet solution op true als tot hij wordt getriggerd door constraints.
         permutatie = {i:permutatie[i] for i in range(0,len(permutatie))}    # conversie naar dictionary
 
-        for current_index, kaart in permutatie.items():
-            buren = list(permutatie[index] for index in grenzingen[current_index])  # Maak een lijst met kaarten die grenzen aan de huidige kaart.
-
-            # elke Aas grenst aan een Heer
-            if kaart == 'A' and 'H' not in buren:
-                found_solution = False
-
-            # elke Heer grenst aan een Vrouw
-            if kaart == 'H' and 'V' not in buren:
-                found_solution = False
-
-            # elke Vrouwgrenst aan een Boer
-            if kaart == 'V' and 'B' not in buren:
-                found_solution = False
-
-            # een (elke) aas grenst niet aan een vrouw.
-            if kaart == 'A' and 'V' in buren:
-                found_solution = False
-
-            # Dezeflde kaarten mogen niet naast elkaar liggen
-            if kaart in  buren:
-                found_solution = False
-
-        if found_solution:
+        if is_geldig_bord(permutatie):
             if solution_found_at_iteration == 0:
                 solution_found_at_iteration = count
             solutions.append(permutatie)
@@ -57,6 +35,58 @@ def brute_force():
         print_layout(solution)
     print("Oplossing gevonden bij iteratie: ", solution_found_at_iteration)
 
+
+def dfs(stapel, bord_index=0, bord=None):
+    global dfs_count
+    dfs_count += 1
+    # Maak een bord aan om kaarten op te leggen.
+    if bord == None:
+        bord = {i: '' for i in range(0,8)}
+
+    if bord_index == len(bord):  # aangekomen bij de laatste kaart, en het bord is geldig. Oplossing gevonden!
+        solutions.append(bord)
+
+        return
+
+    # Loop over alle kaarten die nog over zijn.
+    for kaart in stapel:
+        bord[bord_index] = kaart            # Plaats de kaart op het bord
+        kaart_index = stapel.index(kaart)   # Achterhaal de index van waar de kaart vandaan kwam uit de stapel
+        stapel.remove(kaart)                # Verwijder de kaart uit de stapel
+        if is_geldig_bord(bord):
+            dfs(stapel.copy(), bord_index+1, bord.copy())  # Als het een geldige bord state is, ga dieper.
+        stapel.insert(kaart_index, kaart)  # Leg de kaart weer terug
+        bord[bord_index] = ''              # Maak de bordpositie leeg.
+
+
+
+
+
+def is_geldig_bord(bord):
+    for current_index, kaart in bord.items():
+        buren = list(bord[index] for index in grenzingen[current_index])  # Maak een lijst met kaarten die grenzen aan de huidige kaart.
+
+        # elke Aas grenst aan een Heer
+        if kaart == 'A' and 'H' not in buren and '' not in buren:
+            return False
+
+        # elke Heer grenst aan een Vrouw
+        if kaart == 'H' and 'V' not in buren and '' not in buren:
+            return False
+
+        # elke Vrouw grenst aan een Boer
+        if kaart == 'V' and 'B' not in buren and '' not in buren:
+            return False
+
+        # een (elke) aas grenst niet aan een vrouw.
+        if kaart == 'A' and 'V' in buren and '' not in buren:
+            return False
+
+        # Dezeflde kaarten mogen niet naast elkaar liggen
+        if kaart != '' and kaart in buren:
+            return False
+    return True
+
 def print_layout(solution):
     print("[ ][ ][{}][ ]".format(solution[0]))
     print("[{}][{}][{}][ ]".format(solution[1], solution[2], solution[3]))
@@ -64,7 +94,15 @@ def print_layout(solution):
     print("[ ][ ][{}][]".format(solution[7]))
     print("-----------------------------")
 
-brute_force()
 
+brute_force()
+for solution in solutions:
+    print_layout(solution)
+
+solutions = []
+dfs(stapel)
+for solution in solutions:
+    print_layout(solution)
+print("DFS count:", dfs_count)
 
 

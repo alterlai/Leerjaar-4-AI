@@ -1,0 +1,41 @@
+Gegeven 5 = A
+* 3,4,6,7 kunnen geen A zijn vanwege [5]
+* 3,4,6,7 kunnen geen V zijn vanwege [4]
+* dus 3,4,6,7 moeteenH of Bzijn
+* er zijn maar 2xH en 2xB kaarten, dus 0,1,2 moeteen A of V zijn
+* Als 0,2 V zijn kan 1 geen A zijn (ligt niet naast H). Andersom ook
+
+Gegeven 5 = V
+* 3, 4, 6, 7 kunnen geen A zijn vanwege [5]
+* 3, 4, 6, 7 kunnen geen V zijn vanwege [5]
+* Dus 3, 4, 6, 7 moet een H of B zijn
+* Er zijn maar 2xH en 2xB dus 0,1,2 moet een A of V zijn
+
+Gegeven 5 = B
+* 3,4,6,7 kunnen geen B zijn vanwege [5]
+* 6, 7 kan geen H zijn omdat die naast een A en V moet liggen
+* 6, 7 Moet een V zijn vanwege [5]
+* 1,2, 3, 4 kan geen V zijn vanwege (6,7 = v)
+x er kan geen H meer grenzen aan een V.
+
+Gegeven 0 = A
+* 3 moet H zijn vanwege [0]
+* 2 of 5 moet een A zijn vanwege [3]
+* 2, 5 moet een V zijn vanwege [3]
+* 4 kan geen A zijn vanwege [2,5]
+* 6,7 Kunnen geen H zijn want ze moeten grenzen aan een A
+x 5 Moet een V of A zijn. Maar komt vervolgens niet uit bij 1,2
+
+
+Gegeven 0 = V
+* 3 is een B vanwege [0]
+* 2, 5 is geen B vanwege [3]
+* 2 en 5 moet een H zijn want die moeten aan minimaal een vrouw en een A liggen.
+* 4 moet een V zijn zodat beide vrouwen aan een H grenzen.
+x [4] grenst niet aan een B.
+
+Gegeven 0 = B
+* 3 moet een V zijn vanwege [0]
+* 2, 5 kunenn geen A zijn vanwege [3]
+* 4 moet een V zijn zodat die grenst aan een H en B
+x Niet alle Boeren kunnen meer grenzen aan vrouwen.
