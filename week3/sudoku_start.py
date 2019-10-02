@@ -121,8 +121,8 @@ def solve(grid: dict):
                 make_move(temp_grid, cell, value)
                 if solve(temp_grid):
                     return True
-    return False
-
+        return False
+    
 
 def make_move(grid: dict, column: str, row: str):
     grid.update({column: row})
