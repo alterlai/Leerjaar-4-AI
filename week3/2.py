@@ -45,18 +45,16 @@ def dfs(stapel, bord_index=0, bord=None):
 
     if bord_index == len(bord):  # aangekomen bij de laatste kaart, en het bord is geldig. Oplossing gevonden!
         solutions.append(bord)
-
         return
 
     # Loop over alle kaarten die nog over zijn.
     for kaart in stapel:
         bord[bord_index] = kaart            # Plaats de kaart op het bord
-        kaart_index = stapel.index(kaart)   # Achterhaal de index van waar de kaart vandaan kwam uit de stapel
-        stapel.remove(kaart)                # Verwijder de kaart uit de stapel
         if is_geldig_bord(bord):
-            dfs(stapel.copy(), bord_index+1, bord.copy())  # Als het een geldige bord state is, ga dieper.
-        stapel.insert(kaart_index, kaart)  # Leg de kaart weer terug
-        bord[bord_index] = ''              # Maak de bordpositie leeg.
+            nieuwe_stapel = stapel.copy()               # Maak een kopie van de stapel.
+            nieuwe_stapel.remove(kaart)                # Verwijder de kaart uit de stapel
+            dfs(nieuwe_stapel, bord_index+1, bord.copy())  # Als het een geldige bord state is, ga dieper.
+
 
 
 
