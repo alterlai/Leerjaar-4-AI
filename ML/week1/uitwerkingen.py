@@ -118,6 +118,9 @@ def contourPlot(X, y):
     J_vals = np.zeros((len(t2), len(t2)))
 
     # YOUR CODE HERE
+    for row in range(len(t1)):
+        for col in range(len(t2)):
+            J_vals[row][col] = computeCost(X, y, [[t1[row]], [t2[col]]])
 
     surf = ax.plot_surface(T1, T2, J_vals, rstride=1, cstride=1, cmap=cm.coolwarm, linewidth=0, antialiased=False)
 
