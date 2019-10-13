@@ -23,7 +23,7 @@ def sigmoid(z):
     # vector is.
     # Maak gebruik van de methode exp() in NumPy.
 
-    return 1/(1+np.exp(-z))
+    return 1 / (1 + np.exp(-z))
 
 
 # ==== OPGAVE 2b ====
@@ -38,9 +38,10 @@ def get_y_matrix(y, m):
 
     # elke waarde in y-1 is de index voor 1 en de rest is 0
     A = [1 for i in range(len(y))]
-    groepering = [i for i in range(len(y)+1)]  # Row in de CSR (voor elke waarde in y moet er een row zijn, dus len(y))
-    indices = np.reshape(y-1, (m,))  # zet 1-based y om in 0-based JA -> dit is column in de CSR
-    return csr_matrix( (A, indices, groepering) )
+    groepering = [i for i in
+                  range(len(y) + 1)]  # Row in de CSR (voor elke waarde in y moet er een row zijn, dus len(y))
+    indices = np.reshape(y - 1, (m,))  # zet 1-based y om in 0-based JA -> dit is column in de CSR
+    return csr_matrix((A, indices, groepering)).todense()
 
 
 # ==== OPGAVE 2c ==== 
@@ -68,7 +69,12 @@ def predictNumber(Theta1, Theta2, X):
     # Voeg enen toe aan het begin van elke stap en reshape de uiteindelijke
     # vector zodat deze dezelfde dimensionaliteit heeft als y in de exercise.
 
-    pass
+    a1 = np.c_[np.ones(len(X)), X]
+    a2 = np.transpose(sigmoid(np.dot(Theta1, np.transpose(a1))))
+    a3 = np.c_[np.ones(len(a2)), a2]
+    a4 = sigmoid(np.dot(Theta2, np.transpose(a3)))
+
+    return np.transpose(a4)
 
 
 # ===== deel 2: =====
@@ -82,31 +88,34 @@ def computeCost(Theta1, Theta2, X, y):
     # Maak gebruik van de methode get_y_matrix() die je in opgave 2a hebt gemaakt
     # om deze om te zetten naar een matrix. 
 
-    pass
+    y_vec = get_y_matrix(y, len(y))
+    predictions = predictNumber(Theta1, Theta2, X)
+    return sum((np.dot(-y_vec, np.transpose(np.log(predictions)))) - (np.dot(1-y_vec, np.transpose(np.log(1-predictions)))))/len(y_vec)
 
 
 # ==== OPGAVE 3a ====
-def sigmoidGradient(z): 
+def sigmoidGradient(z):
     # Retourneer hier de waarde van de afgeleide van de sigmoïdefunctie.
     # Zie de opgave voor de exacte formule. Zorg ervoor dat deze werkt met
     # scalaire waarden en met vectoren.
 
     pass
 
+
 # ==== OPGAVE 3b ====
-def nnCheckGradients(Theta1, Theta2, X, y): 
+def nnCheckGradients(Theta1, Theta2, X, y):
     # Retourneer de gradiënten van Theta1 en Theta2, gegeven de waarden van X en van y
     # Zie het stappenplan in de opgaven voor een mogelijke uitwerking.
 
     Delta2 = np.zeros(Theta1.shape)
     Delta3 = np.zeros(Theta2.shape)
-    m = 1 #voorbeeldwaarde; dit moet je natuurlijk aanpassen naar de echte waarde van m
+    m = 1  # voorbeeldwaarde; dit moet je natuurlijk aanpassen naar de echte waarde van m
 
-    for i in range(m): 
-        #YOUR CODE HERE
+    for i in range(m):
+        # YOUR CODE HERE
         pass
 
     Delta2_grad = Delta2 / m
     Delta3_grad = Delta3 / m
-    
+
     return Delta2_grad, Delta3_grad
