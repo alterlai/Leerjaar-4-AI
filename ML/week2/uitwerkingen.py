@@ -90,7 +90,8 @@ def computeCost(Theta1, Theta2, X, y):
 
     y_vec = get_y_matrix(y, len(y))
     predictions = predictNumber(Theta1, Theta2, X)
-    return sum((np.dot(-y_vec, np.transpose(np.log(predictions)))) - (np.dot(1-y_vec, np.transpose(np.log(1-predictions)))))/len(y_vec)
+    costs = sum((np.dot(-y_vec, np.transpose(np.log(predictions)))) - (np.dot(1-y_vec, np.transpose(np.log(1-predictions)))))/len(y_vec)
+    return np.sum(costs)/len(y_vec)  # Als er wel een matrix met +- 7s uit moet komen dan sum en deling weghalen
 
 
 # ==== OPGAVE 3a ====
