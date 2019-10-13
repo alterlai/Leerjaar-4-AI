@@ -1,4 +1,5 @@
 import time
+from copy import deepcopy
 
 # helper function
 def cross(A, B):
@@ -111,19 +112,17 @@ def solve(grid: dict):
     answer_matrix = get_answer_matrix(grid)
     answer_matrix_sorted_cells = sorted(answer_matrix, key=lambda column: len(answer_matrix[column]), reverse=False)
 
-    # If one of the answer rows is empty, the previous move caused an invalid state.
-    if len(answer_matrix_sorted_cells) > 0 and len(answer_matrix.get(answer_matrix_sorted_cells[0])) < 1:
-        return False
-
     # Iterate through answer_matrix from least possible answers to most possible answers
     for cell in answer_matrix_sorted_cells:
-        # For each row per column, check for conflicts
+        # For each value available per cell, check for conflicts
         for value in answer_matrix.get(cell):
             if no_conflict(grid, cell, value):
-                temp_grid = grid.copy()
+                temp_grid = deepcopy(grid)
                 make_move(temp_grid, cell, value)
-                return solve(temp_grid)
-
+                if solve(temp_grid):
+                    return True
+        return False
+    
 
 def make_move(grid: dict, column: str, row: str):
     grid.update({column: row})
