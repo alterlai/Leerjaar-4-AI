@@ -40,7 +40,7 @@ def get_y_matrix(y, m):
     A = [1 for i in range(len(y))]
     groepering = [i for i in
                   range(len(y) + 1)]  # Row in de CSR (voor elke waarde in y moet er een row zijn, dus len(y))
-    indices = np.reshape(y - 1, (m,))  # zet 1-based y om in 0-based JA -> dit is column in de CSR
+    indices = np.reshape(y - 1, m)  # zet 1-based y om in 0-based JA -> dit is column in de CSR
     return csr_matrix((A, indices, groepering)).todense()
 
 
@@ -90,8 +90,7 @@ def computeCost(Theta1, Theta2, X, y):
 
     y_vec = get_y_matrix(y, len(y))
     predictions = predictNumber(Theta1, Theta2, X)
-    costs = sum((np.dot(-y_vec, np.transpose(np.log(predictions)))) - (np.dot(1-y_vec, np.transpose(np.log(1-predictions)))))/len(y_vec)
-    return np.sum(costs)/len(y_vec)  # Als er wel een matrix met +- 7s uit moet komen dan sum en deling weghalen
+    return (1/len(y))*sum( sum((-y_vec*np.transpose(np.log(predictions)) - ((1-y_vec)*np.transpose(np.log(1-predictions))))))
 
 
 # ==== OPGAVE 3a ====
@@ -99,8 +98,7 @@ def sigmoidGradient(z):
     # Retourneer hier de waarde van de afgeleide van de sigmoïdefunctie.
     # Zie de opgave voor de exacte formule. Zorg ervoor dat deze werkt met
     # scalaire waarden en met vectoren.
-
-    pass
+    return sigmoid(z)*(1-sigmoid(z))
 
 
 # ==== OPGAVE 3b ====
@@ -110,10 +108,26 @@ def nnCheckGradients(Theta1, Theta2, X, y):
 
     Delta2 = np.zeros(Theta1.shape)
     Delta3 = np.zeros(Theta2.shape)
-    m = 1  # voorbeeldwaarde; dit moet je natuurlijk aanpassen naar de echte waarde van m
+    m = len(X)
+
+    # Stap 1
+    predictions = predictNumber(Theta1, Theta2, X)
+
+    # Stap 2
+    y_vec = get_y_matrix(y, m)
+    d3 = predictions - y_vec
+
+    # Stap 3
+    error = np.transpose(Theta2) * np.transpose(d3) * sigmoidGradient(X)
+
+    # TODO: plz halp Stap 4
+    print(np.shape(sum(np.transpose(error))))
+    print(np.shape(Theta2))
+    print(np.shape(Theta1))
+
+    # d2 = (np.dot(d3, Theta2)) * sigmoidGradient(d3)
 
     for i in range(m):
-        # YOUR CODE HERE
         pass
 
     Delta2_grad = Delta2 / m
