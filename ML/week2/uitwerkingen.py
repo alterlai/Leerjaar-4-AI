@@ -118,14 +118,13 @@ def nnCheckGradients(Theta1, Theta2, X, y):
     d3 = predictions - y_vec
 
     # Stap 3
-    error = np.transpose(Theta2) * np.transpose(d3) * sigmoidGradient(X)
+    z2 = np.dot((np.c_[np.ones(len(X)), X]), np.transpose(Theta1))
+    z3 = np.dot((np.c_[np.ones(len(z2)), z2]), np.transpose(Theta2))
+    Delta3 = np.transpose(Theta2) * np.transpose(d3) * sigmoidGradient(z3)
 
-    # TODO: plz halp Stap 4
-    print(np.shape(sum(np.transpose(error))))
-    print(np.shape(Theta2))
-    print(np.shape(Theta1))
+    # stap 4
+    Delta2 = np.dot(np.transpose(Theta1), np.transpose(z2)) # * sigmoidGradient(z2)
 
-    # d2 = (np.dot(d3, Theta2)) * sigmoidGradient(d3)
 
     for i in range(m):
         pass
