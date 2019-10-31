@@ -85,10 +85,12 @@ def computeCost(Theta1, Theta2, X, y):
     # Let op: de y die hier binnenkomt is de m×1-vector met waarden van 1...10. 
     # Maak gebruik van de methode get_y_matrix() die je in opgave 2a hebt gemaakt
     # om deze om te zetten naar een matrix. 
-
-    y_vec = get_y_matrix(y, len(y))
     predictions = predictNumber(Theta1, Theta2, X)
-    return (1/len(y))*sum( sum((-y_vec*np.transpose(np.log(predictions)) - ((1-y_vec)*np.transpose(np.log(1-predictions))))))
+    y_mat = get_y_matrix(y, len(X))
+    print(y_mat.shape)
+    print(predictions.shape)
+    kost = (-1/len(X))*(sum(y_mat*np.log(np.transpose(predictions)) + (1-y_mat)*np.log(1-np.transpose(predictions))))
+    return kost
 
 
 # ==== OPGAVE 3a ====
