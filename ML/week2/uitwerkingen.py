@@ -59,22 +59,20 @@ def predictNumber(Theta1, Theta2, X):
     # Een mogelijk stappenplan kan zijn:
 
     #    1. voeg enen toe aan de gegeven matrix X; dit is de input-matrix a1
+    a1 = np.insert(X, 0, 1, axis=1)
     #    2. roep de sigmoid-functie van hierboven aan met a1 als actuele
     #       parameter: dit is de variabele a2
+    a2 = sigmoid(np.dot(a1, np.transpose(Theta1)))
     #    3. voeg enen toe aan de matrix a2, dit is de input voor de laatste
     #       laag in het netwerk
+    a2 = np.insert(a2, 0, 1, axis=1)
     #    4. roep de sigmoid-functie aan op deze a2; dit is het uiteindelijke
     #       resultaat: de output van het netwerk aan de buitenste laag.
+    result = sigmoid(np.dot(a2, np.transpose(Theta2)))
 
     # Voeg enen toe aan het begin van elke stap en reshape de uiteindelijke
     # vector zodat deze dezelfde dimensionaliteit heeft als y in de exercise.
-
-    a1 = np.c_[np.ones(len(X)), X]
-    a2 = np.transpose(sigmoid(np.dot(Theta1, np.transpose(a1))))
-    a3 = np.c_[np.ones(len(a2)), a2]
-    a4 = sigmoid(np.dot(Theta2, np.transpose(a3)))
-
-    return np.transpose(a4)
+    return result
 
 
 # ===== deel 2: =====
