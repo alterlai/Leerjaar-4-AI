@@ -13,7 +13,7 @@ def plotNumber(nrVector):
 
     nrVector = np.reshape(nrVector, (20, 20), 'F')  # Mogelijk 3e param 'F' megeven voor Fortran index volgorde
     plt.matshow(nrVector)
-    plt.show()
+    # plt.show()
 
 
 # ==== OPGAVE 2a ====
@@ -108,27 +108,21 @@ def nnCheckGradients(Theta1, Theta2, X, y):
 
     Delta2 = np.zeros(Theta1.shape)
     Delta3 = np.zeros(Theta2.shape)
-    m = len(X)
-
-    # Stap 1
-    predictions = predictNumber(Theta1, Theta2, X)
-
-    # Stap 2
-    y_vec = get_y_matrix(y, m)
-    d3 = predictions - y_vec
-
-    # Stap 3
-    error = np.transpose(Theta2) * np.transpose(d3) * sigmoidGradient(X)
-
-    # TODO: plz halp Stap 4
-    print(np.shape(sum(np.transpose(error))))
-    print(np.shape(Theta2))
-    print(np.shape(Theta1))
-
-    # d2 = (np.dot(d3, Theta2)) * sigmoidGradient(d3)
+    Delta3 = np.transpose(Delta3)
+    m = 1  # voorbeeldwaarde; dit moet je natuurlijk aanpassen naar de echte waarde van m
 
     for i in range(m):
-        pass
+        a1 = np.insert(X[i], 0, 1)
+        z2 = np.dot(a1, np.transpose(Theta1))
+        a2 = sigmoid(z2)
+        a2 = np.insert(a2, 0, 1)
+        a3 = sigmoid(np.dot(a2, np.transpose(Theta2)))
+        # stap 2
+        Delta3[i] = a3 - y[i]
+        # stap 3
+
+    Delta3 = np.transpose(Delta3)
+    Delta2 = np.multiply(np.dot(np.transpose(Theta2), Delta3), np.insert(sigmoidGradient(z2),0, 1))
 
     Delta2_grad = Delta2 / m
     Delta3_grad = Delta3 / m
