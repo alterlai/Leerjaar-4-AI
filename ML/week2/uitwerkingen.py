@@ -41,7 +41,7 @@ def get_y_matrix(y, m):
     groepering = [i for i in
                   range(len(y) + 1)]  # Row in de CSR (voor elke waarde in y moet er een row zijn, dus len(y))
     indices = np.reshape(y - 1, m)  # zet 1-based y om in 0-based JA -> dit is column in de CSR
-    return csr_matrix((A, indices, groepering)).todense()
+    return csr_matrix((A, indices, groepering)).toarray()
 
 
 # ==== OPGAVE 2c ==== 
@@ -86,11 +86,11 @@ def computeCost(Theta1, Theta2, X, y):
     # Maak gebruik van de methode get_y_matrix() die je in opgave 2a hebt gemaakt
     # om deze om te zetten naar een matrix. 
     predictions = predictNumber(Theta1, Theta2, X)
-    y_mat = get_y_matrix(y, len(X))
-    print(y_mat.shape)
-    print(predictions.shape)
-    kost = (-1/len(X))*(sum(y_mat*np.log(np.transpose(predictions)) + (1-y_mat)*np.log(1-np.transpose(predictions))))
-    return kost
+    y_vec = get_y_matrix(y, len(X))
+
+    # kost = (-1/len(X))*(sum(y_mat*np.log(np.transpose(predictions)) + (1-y_mat)*np.log(1-np.transpose(predictions))))
+    return (1 / len(X)) * sum(
+        sum(-y_vec * np.log(predictions) - (1 - y_vec) * np.log(1 - predictions)))
 
 
 # ==== OPGAVE 3a ====
@@ -98,7 +98,7 @@ def sigmoidGradient(z):
     # Retourneer hier de waarde van de afgeleide van de sigmoïdefunctie.
     # Zie de opgave voor de exacte formule. Zorg ervoor dat deze werkt met
     # scalaire waarden en met vectoren.
-    return sigmoid(z)*(1-sigmoid(z))
+    return sigmoid(z) * (1 - sigmoid(z))
 
 
 # ==== OPGAVE 3b ====
@@ -108,21 +108,23 @@ def nnCheckGradients(Theta1, Theta2, X, y):
 
     Delta2 = np.zeros(Theta1.shape)
     Delta3 = np.zeros(Theta2.shape)
-    Delta3 = np.transpose(Delta3)
-    m = 1  # voorbeeldwaarde; dit moet je natuurlijk aanpassen naar de echte waarde van m
+    m, n = np.shape(X)  # voorbeeldwaarde; dit moet je natuurlijk aanpassen naar de echte waarde van m
+    y_vec = get_y_matrix(y, m)
 
     for i in range(m):
         a1 = np.insert(X[i], 0, 1)
-        z2 = np.dot(a1, np.transpose(Theta1))
+        z2 = np.dot(Theta1, a1)
         a2 = sigmoid(z2)
         a2 = np.insert(a2, 0, 1)
         a3 = sigmoid(np.dot(a2, np.transpose(Theta2)))
-        # stap 2
-        Delta3[i] = a3 - y[i]
-        # stap 3
 
-    Delta3 = np.transpose(Delta3)
-    Delta2 = np.multiply(np.dot(np.transpose(Theta2), Delta3), np.insert(sigmoidGradient(z2),0, 1))
+        # stap 2
+        d3 = a3 - y_vec[i]
+        d2 = np.dot(Theta2.T, d3)[1:] * sigmoidGradient(z2)
+
+        # stap 3
+        Delta3 = Delta3 + np.dot(d3, a3)
+        Delta2 = Delta2 + np.dot(np.insert(d2, 0, 1), a2)
 
     Delta2_grad = Delta2 / m
     Delta3_grad = Delta3 / m
