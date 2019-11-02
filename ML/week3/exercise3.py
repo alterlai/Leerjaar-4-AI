@@ -67,7 +67,8 @@ print ("Bepalen van de confusion matrix van het getrainde netwerk.")
 pred = np.argmax(model.predict(test_images), axis=1)
 cm = confMatrix(test_labels, pred)
 
-sess = tf.Session()
+
+sess = tf.Session(config=tf.ConfigProto(device_count={'GPU': 0}))
 with sess.as_default():
     data = cm.eval() 
 

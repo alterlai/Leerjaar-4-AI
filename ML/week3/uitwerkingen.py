@@ -12,7 +12,7 @@ def plotImage(img, label):
     # Maak gebruik van plt.cm.binary voor de cmap-parameter van plt.imgshow.
 
     # YOUR CODE HERE
-    plt.matshow(img)
+    plt.imshow(img, cmap=plt.cm.binary)
     plt.xlabel(label)
     plt.show()
     pass
@@ -39,9 +39,12 @@ def buildModel():
     # output-laag. Compileer het netwerk vervolgens met de gegevens die in opgave gegeven zijn
     # en retourneer het resultaat.
 
-    model = None
+    model = tf.keras.models.Sequential()
+    model.add(tf.keras.layers.Flatten())    # Input layer
+    model.add(tf.keras.layers.Dense(128, activation=tf.nn.relu))
+    model.add(tf.keras.layers.Dense(10, activation=tf.nn.softmax))
 
-    # YOUR CODE HERE
+    model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
 
     return model
 
@@ -51,7 +54,7 @@ def confMatrix(labels, pred):
     # Retourneer de econfusion matrix op basis van de gegeven voorspelling (pred) en de actuele
     # waarden (labels). Check de documentatie van tf.math.confusion_matrix
     
-    # YOUR CODE HERE
+    return tf.math.confusion_matrix(labels, pred)
     pass
 
 # OPGAVE 2b

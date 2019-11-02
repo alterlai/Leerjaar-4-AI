@@ -41,20 +41,20 @@ def get_y_matrix(y, m):
     groepering = [i for i in
                   range(len(y) + 1)]  # Row in de CSR (voor elke waarde in y moet er een row zijn, dus len(y))
     indices = np.reshape(y - 1, m)  # zet 1-based y om in 0-based JA -> dit is column in de CSR
-    return csr_matrix((A, indices, groepering)).todense()
+    return csr_matrix((A, indices, groepering)).toarray()
 
 
-# ==== OPGAVE 2c ==== 
+# ==== OPGAVE 2c ====
 # ===== deel 1: =====
 def predictNumber(Theta1, Theta2, X):
     # Deze methode moet een matrix teruggeven met de output van het netwerk
-    # gegeven de waarden van Theta1 en Theta2. Elke regel in deze matrix 
+    # gegeven de waarden van Theta1 en Theta2. Elke regel in deze matrix
     # is de waarschijnlijkheid dat het sample op die positie (i) het getal
     # is dat met de kolom correspondeert.
 
     # De matrices Theta1 en Theta2 corresponderen met het gewicht tussen de
     # input-laag en de verborgen laag, en tussen de verborgen laag en de
-    # output-laag, respectievelijk. 
+    # output-laag, respectievelijk.
 
     # Een mogelijk stappenplan kan zijn:
 
@@ -78,19 +78,19 @@ def predictNumber(Theta1, Theta2, X):
 # ===== deel 2: =====
 def computeCost(Theta1, Theta2, X, y):
     # Deze methode maakt gebruik van de methode predictNumber() die je hierboven hebt
-    # geïmplementeerd. Hier wordt het voorspelde getal vergeleken met de werkelijk 
+    # geïmplementeerd. Hier wordt het voorspelde getal vergeleken met de werkelijk
     # waarde (die in de parameter y is meegegeven) en wordt de totale kost van deze
     # voorspelling (dus met de huidige waarden van Theta1 en Theta2) berekend en
     # geretourneerd.
-    # Let op: de y die hier binnenkomt is de m×1-vector met waarden van 1...10. 
+    # Let op: de y die hier binnenkomt is de m×1-vector met waarden van 1...10.
     # Maak gebruik van de methode get_y_matrix() die je in opgave 2a hebt gemaakt
-    # om deze om te zetten naar een matrix. 
+    # om deze om te zetten naar een matrix.
     predictions = predictNumber(Theta1, Theta2, X)
-    y_mat = get_y_matrix(y, len(X))
-    print(y_mat.shape)
-    print(predictions.shape)
-    kost = (-1/len(X))*(sum(y_mat*np.log(np.transpose(predictions)) + (1-y_mat)*np.log(1-np.transpose(predictions))))
-    return kost
+    y_vec = get_y_matrix(y, len(X))
+
+    # kost = (-1/len(X))*(sum(y_mat*np.log(np.transpose(predictions)) + (1-y_mat)*np.log(1-np.transpose(predictions))))
+    return (1 / len(X)) * sum(
+        sum(-y_vec * np.log(predictions) - (1 - y_vec) * np.log(1 - predictions)))
 
 
 # ==== OPGAVE 3a ====
@@ -98,7 +98,7 @@ def sigmoidGradient(z):
     # Retourneer hier de waarde van de afgeleide van de sigmoïdefunctie.
     # Zie de opgave voor de exacte formule. Zorg ervoor dat deze werkt met
     # scalaire waarden en met vectoren.
-    return sigmoid(z)*(1-sigmoid(z))
+    return sigmoid(z) * (1 - sigmoid(z))
 
 
 # ==== OPGAVE 3b ====
@@ -108,23 +108,23 @@ def nnCheckGradients(Theta1, Theta2, X, y):
 
     Delta2 = np.zeros(Theta1.shape)
     Delta3 = np.zeros(Theta2.shape)
-    m = len(y)  # voorbeeldwaarde; dit moet je natuurlijk aanpassen naar de echte waarde van m
-    y = get_y_matrix(y, m)
+    m, n = np.shape(X)  # voorbeeldwaarde; dit moet je natuurlijk aanpassen naar de echte waarde van m
+    y_vec = get_y_matrix(y, m)
 
     for i in range(m):
         a1 = np.insert(X[i], 0, 1)
         z2 = np.dot(Theta1, a1)
         a2 = sigmoid(z2)
         a2 = np.insert(a2, 0, 1)
-        z3 = np.dot(Theta2, a2)
-        a3 = sigmoid(z3)
+        a3 = sigmoid(np.dot(a2, np.transpose(Theta2)))
+
         # stap 2
-        k3 =  a3 - y[i]
+        d3 = a3 - y_vec[i]
+        d2 = np.dot(Theta2.T, d3)[1:] * sigmoidGradient(z2)
+
         # stap 3
-        gradientz2 = sigmoidGradient(z2)
-        k2 = np.dot(k3, Theta2)*np.insert(gradientz2, 0, 1)
-        Delta2 = Delta2 + np.dot(k3, np.transpose(a2))
-        Delta3 = Delta3 + np.dot(k2, a1.T)
+        Delta3 = Delta3 + np.dot(d3, a3)
+        Delta2 = Delta2 + np.dot(np.insert(d2, 0, 1), a2)
 
     Delta2_grad = Delta2 / m
     Delta3_grad = Delta3 / m
