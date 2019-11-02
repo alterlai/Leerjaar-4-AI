@@ -13,7 +13,7 @@ def plotNumber(nrVector):
 
     nrVector = np.reshape(nrVector, (20, 20), 'F')  # Mogelijk 3e param 'F' megeven voor Fortran index volgorde
     plt.matshow(nrVector)
-    plt.show()
+    # plt.show()
 
 
 # ==== OPGAVE 2a ====
@@ -59,22 +59,20 @@ def predictNumber(Theta1, Theta2, X):
     # Een mogelijk stappenplan kan zijn:
 
     #    1. voeg enen toe aan de gegeven matrix X; dit is de input-matrix a1
+    a1 = np.insert(X, 0, 1, axis=1)
     #    2. roep de sigmoid-functie van hierboven aan met a1 als actuele
     #       parameter: dit is de variabele a2
+    a2 = sigmoid(np.dot(a1, np.transpose(Theta1)))
     #    3. voeg enen toe aan de matrix a2, dit is de input voor de laatste
     #       laag in het netwerk
+    a2 = np.insert(a2, 0, 1, axis=1)
     #    4. roep de sigmoid-functie aan op deze a2; dit is het uiteindelijke
     #       resultaat: de output van het netwerk aan de buitenste laag.
+    result = sigmoid(np.dot(a2, np.transpose(Theta2)))
 
     # Voeg enen toe aan het begin van elke stap en reshape de uiteindelijke
     # vector zodat deze dezelfde dimensionaliteit heeft als y in de exercise.
-
-    a1 = np.c_[np.ones(len(X)), X]
-    a2 = np.transpose(sigmoid(np.dot(Theta1, np.transpose(a1))))
-    a3 = np.c_[np.ones(len(a2)), a2]
-    a4 = sigmoid(np.dot(Theta2, np.transpose(a3)))
-
-    return np.transpose(a4)
+    return result
 
 
 # ===== deel 2: =====
@@ -87,10 +85,12 @@ def computeCost(Theta1, Theta2, X, y):
     # Let op: de y die hier binnenkomt is de m×1-vector met waarden van 1...10. 
     # Maak gebruik van de methode get_y_matrix() die je in opgave 2a hebt gemaakt
     # om deze om te zetten naar een matrix. 
-
-    y_vec = get_y_matrix(y, len(y))
     predictions = predictNumber(Theta1, Theta2, X)
-    return (1/len(y))*sum( sum((-y_vec*np.transpose(np.log(predictions)) - ((1-y_vec)*np.transpose(np.log(1-predictions))))))
+    y_mat = get_y_matrix(y, len(X))
+    print(y_mat.shape)
+    print(predictions.shape)
+    kost = (-1/len(X))*(sum(y_mat*np.log(np.transpose(predictions)) + (1-y_mat)*np.log(1-np.transpose(predictions))))
+    return kost
 
 
 # ==== OPGAVE 3a ====
@@ -108,26 +108,23 @@ def nnCheckGradients(Theta1, Theta2, X, y):
 
     Delta2 = np.zeros(Theta1.shape)
     Delta3 = np.zeros(Theta2.shape)
-    m = len(X)
-
-    # Stap 1
-    predictions = predictNumber(Theta1, Theta2, X)
-
-    # Stap 2
-    y_vec = get_y_matrix(y, m)
-    d3 = predictions - y_vec
-
-    # Stap 3
-    z2 = np.dot((np.c_[np.ones(len(X)), X]), np.transpose(Theta1))
-    z3 = np.dot((np.c_[np.ones(len(z2)), z2]), np.transpose(Theta2))
-    Delta3 = np.transpose(Theta2) * np.transpose(d3) * sigmoidGradient(z3)
-
-    # stap 4
-    Delta2 = np.dot(np.transpose(Theta1), np.transpose(z2)) # * sigmoidGradient(z2)
-
+    m = len(y)  # voorbeeldwaarde; dit moet je natuurlijk aanpassen naar de echte waarde van m
+    y = get_y_matrix(y, m)
 
     for i in range(m):
-        pass
+        a1 = np.insert(X[i], 0, 1)
+        z2 = np.dot(Theta1, a1)
+        a2 = sigmoid(z2)
+        a2 = np.insert(a2, 0, 1)
+        z3 = np.dot(Theta2, a2)
+        a3 = sigmoid(z3)
+        # stap 2
+        k3 =  a3 - y[i]
+        # stap 3
+        gradientz2 = sigmoidGradient(z2)
+        k2 = np.dot(k3, Theta2)*np.insert(gradientz2, 0, 1)
+        Delta2 = Delta2 + np.dot(k3, np.transpose(a2))
+        Delta3 = Delta3 + np.dot(k2, a1.T)
 
     Delta2_grad = Delta2 / m
     Delta3_grad = Delta3 / m

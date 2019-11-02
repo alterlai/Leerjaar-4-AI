@@ -26,12 +26,12 @@ def randInitializeWeights(in_conn, out_conn):
 def displayData(X):
     m, n = X.shape
     for idx in range(0, m):
-        plt.subplot(5, 5, idx + 1)
+        # plt.subplot(5, 5, idx + 1)
         x = X[idx, :].reshape(20, 20)
-        plt.tick_params(which='both', left=False, bottom=False, top=False, labelleft=False, labelbottom=False)
-        plt.imshow(x, cmap='gray', interpolation='nearest')
+        # plt.tick_params(which='both', left=False, bottom=False, top=False, labelleft=False, labelbottom=False)
+        # plt.imshow(x, cmap='gray', interpolation='nearest')
 
-    plt.show()
+    # plt.show()
 
 
 itr = 1
@@ -78,7 +78,7 @@ else:
     print("Dit zou een {} moeten zijn.".format(hyp))
     plotNumber(X[rnd, :])
 
-input("Druk op Return om verder te gaan...")
+# input("Druk op Return om verder te gaan...")
 
 # ========================  OPGAVE 2a ======================== 
 print("")
@@ -96,7 +96,7 @@ print(sigmoid(np.matrix([-10, 0, 10])))
 print("Simoid aangeroepen met 3×1 vector [-10, 0, 10]")
 print(sigmoid(np.matrix(([-10], [0], [10]))))
 
-input("Druk op Return om verder te gaan...")
+# input("Druk op Return om verder te gaan...")
 
 # ========================  OPGAVE 2b ======================== 
 print("")
@@ -105,7 +105,7 @@ print("en het weergeven van de dimensionaliteit van het resultaat")
 matr = get_y_matrix(y, m)
 print(matr.shape)
 print("Dit zou (5000,10) moeten zijn.")
-input("Druk op Return om verder te gaan.")
+# input("Druk op Return om verder te gaan.")
 
 # ========================  OPGAVE 2c ========================
 print("")
@@ -122,7 +122,7 @@ print("Dit zou zo rond de 7 moeten liggen.")
 acc = np.count_nonzero([pred - y == 0])
 print("Correct geclassificeerd: {}".format(acc))
 print("De huidige accuratessse van het netwerk is {} %".format(100 * acc / m))
-input("Druk op Return om verder te gaan.")
+# input("Druk op Return om verder te gaan.")
 
 # ========================  OPGAVE 3 ======================== 
 print("")
@@ -130,7 +130,7 @@ print("Aanroepen van de methode sigmoidGradient met de waarden [-1, -0.5, 0, 0.5
 print(sigmoidGradient(np.array([[-1, -0.5, 0, 0.5, 1]])))
 print("Dit zou als resultaat de volgende lijste moeten hebben")
 print("[ 0.19661193  0.23500371  0.25  0.23500371  0.19661193]")
-input("Druk op Return om verder te gaan...")
+# input("Druk op Return om verder te gaan...")
 
 print("")
 print("Aanroepen van de methode nnCheckGradients met initiële waarden van de Theta's.")
