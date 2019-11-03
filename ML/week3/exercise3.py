@@ -3,9 +3,12 @@ import matplotlib.pyplot as plt
 import tensorflow as tf
 from tensorflow import keras
 from random import randint
+from tensorflow import compat
 import sys
 
 from uitwerkingen import *
+
+tf.compat.v1.disable_eager_execution()
 
 # ==============================================
 # HELPER FUNCTIES
@@ -68,7 +71,7 @@ pred = np.argmax(model.predict(test_images), axis=1)
 cm = confMatrix(test_labels, pred)
 
 
-sess = tf.Session(config=tf.ConfigProto(device_count={'GPU': 0}))
+sess = tf.compat.v1.Session()
 with sess.as_default():
     data = cm.eval() 
 
