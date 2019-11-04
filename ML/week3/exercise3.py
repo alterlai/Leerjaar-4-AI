@@ -5,6 +5,7 @@ from tensorflow import keras
 from random import randint
 from tensorflow import compat
 import sys
+import pickle
 
 from uitwerkingen import *
 
@@ -61,6 +62,7 @@ print ("Aanmaken van het model.")
 model = buildModel()
 print ("Trainen van het model...") 
 model.fit(train_images, train_labels, epochs=6)
+# pickle.dump(model, open('model.p', 'wb'))
 print ("Training afgerond.")
 
 

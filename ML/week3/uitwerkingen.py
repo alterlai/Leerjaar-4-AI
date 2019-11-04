@@ -68,9 +68,15 @@ def confEls(conf, labels):
     #     (categorie:string, tp:int, fp:int, fn:int, tn:int)
  
     # Check de documentatie van numpy diagonal om de eerste waarde te bepalen.
- 
-    # YOUR CODE HERE
-    pass
+    results = []
+    for i in range(len(labels)):
+        tp = conf[i][i]
+        fp = sum(conf[:i]) - tp
+        fn = sum(conf[i]) - tp
+        tn = sum(conf) - tp - fn - fp
+        results.append((labels[i], tp, fp, fn, tn))
+    return results
+
 # OPGAVE 2c
 def confData(metrics):
     # Deze methode krijgt de lijst mee die je in de vorige opgave hebt gemaakt (dus met lengte len(labels))
