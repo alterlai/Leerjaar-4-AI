@@ -79,19 +79,23 @@ def confEls(conf, labels):
 # OPGAVE 2c
 def confData(metrics):
     # Deze methode krijgt de lijst mee die je in de vorige opgave hebt gemaakt (dus met lengte len(labels))
-    # Maak gebruik van een list-comprehension om de totale tp, fp, fn, en tn te berekenen en 
+    # Maak gebruik van een list-comprehension om de totale tp, fp, fn, en tn te berekenen en
     # bepaal vervolgens de metrieken die in de opgave genoemd zijn. Retourneer deze waarden in de
     # vorm van een dictionary (de scaffold hiervan is gegeven).
 
     # VERVANG ONDERSTAANDE REGELS MET JE EIGEN CODE
-    
-    tp = 1
-    fp = 1
-    fn = 1
-    tn = 1
 
-    # BEREKEN HIERONDER DE JUISTE METRIEKEN EN RETOURNEER DIE 
+    tp = sum([i[1] for i in metrics])
+    fp = sum([i[2] for i in metrics])
+    fn = sum([i[3] for i in metrics])
+    tn = sum([i[4] for i in metrics])
+
+    # BEREKEN HIERONDER DE JUISTE METRIEKEN EN RETOURNEER DIE
     # ALS EEN DICTIONARY
+    tpr = tp/(tp+fn)
+    ppv = tp/(tp+fp)
+    tnr = tn/(tn+fp)
+    fpr = fp/(fp+tn)
 
-    rv = {'tpr':0, 'ppv':0, 'tnr':0, 'fpr':0 }
+    rv = {'tpr':tpr, 'ppv':ppv, 'tnr':tnr, 'fpr':fpr }
     return rv
