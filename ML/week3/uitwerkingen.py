@@ -64,16 +64,15 @@ def confEls(conf, labels):
     # waarden van de TP, FP, FN en TN conform de berekening in de opgave. Maak vervolgens gebruik van
     # de methodes zip() en list() om een list van len(labels) te retourneren, waarbij elke tupel 
     # als volgt is gedefinieerd:
-
     #     (categorie:string, tp:int, fp:int, fn:int, tn:int)
  
     # Check de documentatie van numpy diagonal om de eerste waarde te bepalen.
     results = []
     for i in range(len(labels)):
         tp = conf[i][i]
-        fp = sum(conf[:i]) - tp
+        fp = sum(conf[:,i]) - tp
         fn = sum(conf[i]) - tp
-        tn = sum(conf) - tp - fn - fp
+        tn = sum(sum(conf)) - tp - fn - fp
         results.append((labels[i], tp, fp, fn, tn))
     return results
 
