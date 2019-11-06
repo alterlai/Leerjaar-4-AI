@@ -6,6 +6,7 @@ from PIL import Image
 from scipy.sparse import csr_matrix
 import scipy.optimize
 
+np.seterr(all='ignore')
 DATASET_DIR = "./Fundus-data"
 INPUT_LAYER_SIZE = 5625     # 75x75
 HIDDEN_LAYER_SIZE = 128
@@ -54,7 +55,7 @@ def randInitializeWeights(in_conn, out_conn):
 def nnCheckGradients(Theta1, Theta2, X, y):
     # Retourneer de gradiënten van Theta1 en Theta2, gegeven de waarden van X en van y
     # Zie het stappenplan in de opgaven voor een mogelijke uitwerking.
-
+    print("nnCheckGradients")
     Delta2 = np.zeros(Theta1.shape)
     Delta3 = np.zeros(Theta2.shape)
     m, n = np.shape(X)  # voorbeeldwaarde; dit moet je natuurlijk aanpassen naar de echte waarde van m
@@ -89,6 +90,7 @@ def sigmoidGradient(z):
 
 
 def nnCostFunction(Thetas, X, y):
+    print("nnConstFunction")
     global INPUT_LAYER_SIZE, HIDDEN_LAYER_SIZE, NUM_LABELS
     size = HIDDEN_LAYER_SIZE * (1 + INPUT_LAYER_SIZE)  # +1 want de bias-node zit wel in de matrix
     Theta1 = Thetas[:size].reshape(HIDDEN_LAYER_SIZE, INPUT_LAYER_SIZE + 1)
@@ -118,17 +120,18 @@ Theta1 = randInitializeWeights(INPUT_LAYER_SIZE, HIDDEN_LAYER_SIZE)
 Theta2 = randInitializeWeights(HIDDEN_LAYER_SIZE, NUM_LABELS)
 
 init_params = np.concatenate((Theta1.flatten(), Theta2.flatten()))
-args = (X, y)
+args = (flatX, y)
 res = scipy.optimize.minimize(nnCostFunction, init_params, args=args, method='CG', callback=callbackF, jac=True,
-               options={'maxiter': 30, 'disp': True})
+               options={'maxiter': 1, 'disp': True})
+print("optimize done")
 size = HIDDEN_LAYER_SIZE * (
             INPUT_LAYER_SIZE + 1)  # voor de bias-node die wel in de matrix zit maar niet geplot moet worden
 res_Theta1 = res['x'][:size].reshape(HIDDEN_LAYER_SIZE, INPUT_LAYER_SIZE + 1)
 res_Theta2 = res['x'][size:].reshape(NUM_LABELS, HIDDEN_LAYER_SIZE + 1)
 
-cost = computeCost(res_Theta1, res_Theta2, X, y)
+cost = computeCost(res_Theta1, res_Theta2, flatX, y)
 print("Totale cost is nu:", cost)
-pred = np.argmax(predictNumber(res_Theta1, res_Theta2, X), axis=1) + 1
-pass
+pred = np.argmax(predictNumber(res_Theta1, res_Theta2, flatX), axis=1) + 1
+print(pred)
 
 
