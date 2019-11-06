@@ -4,22 +4,25 @@ import os
 import numpy as np
 from PIL import Image
 from scipy.sparse import csr_matrix
+import scipy.optimize
 
 DATASET_DIR = "./Fundus-data"
 INPUT_LAYER_SIZE = 5625     # 75x75
 HIDDEN_LAYER_SIZE = 128
-NUM_LABELS = 30     # 0 - 29 labels
+NUM_LABELS = 39     # 0 - 39 labels
+name_mapping = []
 
 def load_dataset():
     dataset = np.ndarray((1000, 75, 75))
     y = []
     i = 0
     for dir in os.listdir(DATASET_DIR):
+        name_mapping.append(dir)
         for image in os.listdir(DATASET_DIR+"/"+dir):
             image = Image.open(DATASET_DIR+"/"+dir+"/"+image).convert("L")
             dataset[i] = np.asarray(image)
+            y.append(len(name_mapping) -1)
             i += 1
-            y.append(dir)
     return dataset, np.asarray(y)
 
 
@@ -28,11 +31,11 @@ def sigmoid(z):
 
 
 def get_y_matrix(y, m):
-    A = [1 for i in range(len(y))]
-    groepering = [i for i in
-                  range(len(y) + 1)]  # Row in de CSR (voor elke waarde in y moet er een row zijn, dus len(y))
-    indices = np.reshape(y - 1, m)  # zet 1-based y om in 0-based JA -> dit is column in de CSR
-    return csr_matrix((A, indices, groepering)).toarray()
+    rows = [i for i in range(len(y) + 1)]
+    columns = y
+    data = [1 for i in y]
+    y_vec = csr_matrix((data, columns, rows)).toarray()
+    return y_vec
 
 
 def predictNumber(Theta1, Theta2, X):
@@ -40,6 +43,7 @@ def predictNumber(Theta1, Theta2, X):
     a2 = sigmoid(np.dot(a1, np.transpose(Theta1)))
     a2 = np.insert(a2, 0, 1, axis=1)
     result = sigmoid(np.dot(a2, np.transpose(Theta2)))
+    return result
 
 def randInitializeWeights(in_conn, out_conn):
     epsilon_init = 0.12
@@ -84,12 +88,47 @@ def sigmoidGradient(z):
     return sigmoid(z) * (1 - sigmoid(z))
 
 
+def nnCostFunction(Thetas, X, y):
+    global INPUT_LAYER_SIZE, HIDDEN_LAYER_SIZE, NUM_LABELS
+    size = HIDDEN_LAYER_SIZE * (1 + INPUT_LAYER_SIZE)  # +1 want de bias-node zit wel in de matrix
+    Theta1 = Thetas[:size].reshape(HIDDEN_LAYER_SIZE, INPUT_LAYER_SIZE + 1)
+    Theta2 = Thetas[size:].reshape(NUM_LABELS, HIDDEN_LAYER_SIZE + 1)
+    J = computeCost(Theta1, Theta2, X, y)
+    grad1, grad2 = nnCheckGradients(Theta1, Theta2, X, y)
+    return J, np.concatenate((grad1.flatten(), grad2.flatten()))
+
+def callbackF(Xi):
+    global itr
+    print("iteration {}".format(itr))
+    itr += 1
+
+
+def computeCost(Theta1, Theta2, X, y):
+    predictions = predictNumber(Theta1, Theta2, X)
+    y_vec = get_y_matrix(y, len(X))
+
+    # kost = (-1/len(X))*(sum(y_mat*np.log(np.transpose(predictions)) + (1-y_mat)*np.log(1-np.transpose(predictions))))
+    return (1 / len(X)) * sum(
+        sum(-y_vec * np.log(predictions) - (1 - y_vec) * np.log(1 - predictions)))
+
+
 X, y = load_dataset()
 flatX = X.reshape((1000, 5625))
 Theta1 = randInitializeWeights(INPUT_LAYER_SIZE, HIDDEN_LAYER_SIZE)
 Theta2 = randInitializeWeights(HIDDEN_LAYER_SIZE, NUM_LABELS)
 
-results = nnCheckGradients(Theta1, Theta2, flatX, y)
+init_params = np.concatenate((Theta1.flatten(), Theta2.flatten()))
+args = (X, y)
+res = scipy.optimize.minimize(nnCostFunction, init_params, args=args, method='CG', callback=callbackF, jac=True,
+               options={'maxiter': 30, 'disp': True})
+size = HIDDEN_LAYER_SIZE * (
+            INPUT_LAYER_SIZE + 1)  # voor de bias-node die wel in de matrix zit maar niet geplot moet worden
+res_Theta1 = res['x'][:size].reshape(HIDDEN_LAYER_SIZE, INPUT_LAYER_SIZE + 1)
+res_Theta2 = res['x'][size:].reshape(NUM_LABELS, HIDDEN_LAYER_SIZE + 1)
+
+cost = computeCost(res_Theta1, res_Theta2, X, y)
+print("Totale cost is nu:", cost)
+pred = np.argmax(predictNumber(res_Theta1, res_Theta2, X), axis=1) + 1
 pass
 
 
